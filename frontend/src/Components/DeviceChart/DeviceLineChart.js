@@ -24,7 +24,7 @@ const DeviceLineChart = (props) => {
                     <XAxis domain={['dataMin', 'dataMax']} scale='time' type='number' tickFormatter={(unixtime) => moment.unix(unixtime).format('HH:mm:ss')} dataKey="unixtime" />
                     <YAxis type='number' domain={[dataMin => (Math.floor(dataMin, 0)), dataMax => (Math.ceil(dataMax, 0))]} />
                     <Line animationDuration={50} type="monotone" dataKey="value" stroke="#82ca9d" />
-                    <Tooltip />
+                    <Tooltip labelFormatter={(value) => {return `time: ${moment.unix(value).format('HH:mm:ss')}`;}} />
                     <CartesianGrid strokeDasharray="3 3" />
                 </LineChart>
             </ResponsiveContainer>

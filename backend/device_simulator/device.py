@@ -66,7 +66,7 @@ class Device(ABC):
         while self.running==True:
             for attribute_name, generator in self.attributes.items():
                 time_stamp = calendar.timegm(datetime.now().timetuple())
-                value = {'time':datetime.now(), "unixtime":time_stamp, 'value':generator.generate_value()[0]}
+                value = {'time':datetime.now(), "unixtime":time_stamp, 'value':round(generator.generate_value()[0],2)}
                 self.attributes_history[attribute_name].append(value)
             await asyncio.sleep(self.delay)
 
