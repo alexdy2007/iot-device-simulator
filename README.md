@@ -19,3 +19,5 @@ TODO
 - Device Fault percentile
 - Device Fault Alert Flagging
 - Trigger a Fault
+- Deployment
+- How to run in databricks notebook
