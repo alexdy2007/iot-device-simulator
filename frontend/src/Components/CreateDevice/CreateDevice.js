@@ -1,9 +1,8 @@
-import { Fragment, useState } from 'react';
+import { Fragment, useState, useContext, useReducer } from 'react';
 import TextField from "@mui/material/TextField";
 
 import Button from "@mui/material//Button";
 
-import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 
@@ -17,18 +16,21 @@ import FormHelperText from '@mui/material/FormHelperText';
 
 import { DISTRIBUTIONS } from '../../Constants/distributions'
 
+import {SnackbarContext} from "../../Contexts/SnackBarAlertContext"
 
 const CreateDevice = (props) => {
 
     const metaDataRow = { "key": "", "value": "" }
     const [metaData, setMetaData] = useState([metaDataRow]);
 
-    const attributeRow = { "model": "Normal", "name": "" }
+    const attributeRow = { "model": "Normal", "name": "", 'sd':1, 'mean':10, 'beta_a':1, 'beta_b':2, 'scale':10}
     const [attributes, setAttributes] = useState([attributeRow]);
 
     const [properties, setProperties] = useState({ "delay": 10, "numberDevices": 1, "start": true, 'endpoint': 'PlaceHolder' });
 
+    const {snackbar, setSnackbar} = useContext(SnackbarContext);
 
+    const [ignored, forceUpdate] = useReducer(x => x + 1, 0);
 
     // HELPER
     const removeByIndex = (obj, index) => {
@@ -36,6 +38,9 @@ const CreateDevice = (props) => {
         return deepcopy_obj.splice(1, index)
     }
 
+    const isNumeric = (val) => {
+        return !isNaN(parseFloat(val)) && isFinite(val);
+    }
 
     // META DATA
     const handleMetaValueChange = (key, index, e) => {
@@ -43,7 +48,6 @@ const CreateDevice = (props) => {
         newData[index][key] = e.target.value
         setMetaData(newData)
     }
-
 
     const deleteMetaValue = (index) => {
         let modifiedMetaData = removeByIndex(metaData, index)
@@ -53,7 +57,6 @@ const CreateDevice = (props) => {
     const addMetaDataRow = () => {
         setMetaData([...metaData, metaDataRow]);
     };
-
 
     // Attributions
     const handleAttributeChange = (key, index, e) => {
@@ -83,12 +86,107 @@ const CreateDevice = (props) => {
         setMetaData([metaDataRow])
         setAttributes([attributeRow])
         setProperties({ "delay": 10, "numberDevices": 1, "start": true, 'endpoint': 'PlaceHolder' })
+        forceUpdate()
+        return
     }
 
     const createDevices = () => {
-        console.log('Hello')
+        let propertErrors = checkValidPropertiesData(properties)
+        let metaDataErrors = checkValidMetaData(metaData)
+        let attributeErrors = checkValidAttributesData(attributes);
+
+        let validationErrors = [...propertErrors, ...metaDataErrors, ...attributeErrors]
+
+        if(validationErrors.length>0){
+            let msg = validationErrors.join(' & ')
+            setSnackbar({...snackbar, message:msg, severity:"error", open:true})
+            return
+        }
+
+        setSnackbar({...snackbar, message:'Pass', severity:"success", open:true})
+        resetCreateDevice();
+
     }
 
+    const checkValidPropertiesData = (properties) => {
+        let errors = [];
+
+        if (!isNumeric(properties.delay)) {
+            errors.push(['Propertes : delay must be of type number'])
+        }
+
+        if (properties.delay < 1){
+            errors.push(['Propertes : delay has to be gte 1'])
+        }
+
+        if (!isNumeric(properties.numberDevices)) {
+            errors.push(['Propertes : number devices must be of type number'])
+        }
+
+        if (properties.numberDevices < 1 || properties.numberDevices > 100 ){
+            errors.push(['Propertes : number devices must be between 1 and 100'])
+        }
+        
+        return errors
+    }
+
+    const checkValidAttributesData = (attributes) => {
+        let errors = []
+        
+        attributes.map(a => { 
+            if(a.name===''){
+                errors.push('Attributes name must not be blank')
+            }
+            if(a.model=='Normal'){
+                if(!isNumeric(a.mean)){
+                    errors.push('Attributes Normal dist mean must be numeric')
+                }
+                if(!isNumeric(a.sd)){
+                    errors.push('Attributes Normal dist standard dev must be numeric')
+                }
+                if(a.sd < 0){
+                    errors.push('Attributes Normal dist Standard deviation must be gte 0')
+                }
+            }
+            if(a.model=='Beta'){
+                if(!isNumeric(a.beta_a)){
+                    errors.push('Attributes beta model alpha must be numeric')
+                }
+
+                if(a.beta_a <= 0 || a.beta_a > 100){
+                    errors.push('Attributes beta model alpha must be between 0 and 100')
+                }
+
+                if(!isNumeric(a.beta_b)){
+                    errors.push('Attributes beta model beta must be numeric')
+                }
+
+                if(a.beta_b <= 0 || a.beta_b > 100){
+                    errors.push('Attributes beta model beta must be between 0 and 100')
+                }
+
+                if(!isNumeric(a.scale)){
+                    errors.push('Attributes beta model scale must be numeric')
+                }
+
+                if(a.scale <= 0 || a.scale > 100){
+                    errors.push('Attributes beta model scale must be between 0 and 100')
+                }
+            }
+        })
+        return errors
+    }
+
+    const checkValidMetaData = (metaData) => {
+        let errors = [];
+        metaData.map(({key, value}) => {
+            if(key==='' || value===''){
+                errors.push(`MetaData key: ${key} and value: ${value} must both be not blank`)
+            }
+        })
+        return errors
+
+    }
 
     return (
         <Box
@@ -104,6 +202,7 @@ const CreateDevice = (props) => {
                     <Grid container>
                         <Grid xs={10}>
                             <TextField
+                                type='number'           
                                 size="small"
                                 autoFocus
                                 margin="dense"
@@ -114,6 +213,7 @@ const CreateDevice = (props) => {
                         </Grid>
                         <Grid xs={10}>
                             <TextField
+                                type='number'
                                 size="small"
                                 autoFocus
                                 margin="dense"
@@ -153,7 +253,7 @@ const CreateDevice = (props) => {
                                         autoFocus
                                         margin="dense"
                                         label="Label Name"
-                                        value={metaData.key}
+                                        value={item.key}
                                         sx={{ width: '350px' }}
                                         onChange={(e) => handleMetaValueChange("key", index, e)}
                                     />
@@ -164,7 +264,7 @@ const CreateDevice = (props) => {
                                         autoFocus
                                         margin="dense"
                                         label="Value"
-                                        value={metaData.value}
+                                        value={item.value}
                                         sx={{ width: 350 }}
                                         onChange={(e) => handleMetaValueChange("value", index, e)}
                                     />
@@ -197,7 +297,7 @@ const CreateDevice = (props) => {
                                             autoFocus
                                             margin="dense"
                                             label="Attribute Name"
-                                            value={metaData.value}
+                                            value={item.name}
                                             onChange={(e) => handleAttributeChange("name", index, e)}
                                             fullWidth
                                         />
@@ -224,22 +324,24 @@ const CreateDevice = (props) => {
                                     <Fragment>
                                         <Grid xs={2}>
                                             <TextField
+                                                type='number'
                                                 size="small"
                                                 autoFocus
                                                 margin="dense"
                                                 label="Mean"
-                                                value={metaData.mean}
+                                                value={item.mean}
                                                 onChange={(e) => handleAttributeChange("mean", index, e)}
                                                 fullWidth
                                             />
                                         </Grid>
                                         <Grid xs={2}>
                                             <TextField
+                                                type='number'
                                                 size="small"
                                                 autoFocus
                                                 margin="dense"
                                                 label="Standard Deviation"
-                                                value={metaData.sd}
+                                                value={item.sd}
                                                 onChange={(e) => handleAttributeChange("sd", index, e)}
                                                 fullWidth
                                             />
@@ -257,34 +359,37 @@ const CreateDevice = (props) => {
                                         <Fragment>
                                             <Grid xs={2}>
                                                 <TextField
+                                                    type='number'
                                                     size="small"
                                                     autoFocus
                                                     margin="dense"
                                                     label="Alpha"
-                                                    value={metaData.beta_a}
-                                                    onChange={(e) => handleAttributeChange("mean", index, e)}
+                                                    value={item.beta_a}
+                                                    onChange={(e) => handleAttributeChange("beta_a", index, e)}
                                                     fullWidth
                                                 />
                                             </Grid>
                                             <Grid xs={2}>
                                                 <TextField
+                                                    type='number'                                                    
                                                     size="small"
                                                     autoFocus
                                                     margin="dense"
                                                     label="Beta"
-                                                    value={metaData.beta_b}
-                                                    onChange={(e) => handleAttributeChange("sd", index, e)}
+                                                    value={item.beta_b}
+                                                    onChange={(e) => handleAttributeChange("beta_b", index, e)}
                                                     fullWidth
                                                 />
                                             </Grid>
                                             <Grid xs={2}>
                                                 <TextField
+                                                    type='number'
                                                     size="small"
                                                     autoFocus
                                                     margin="dense"
                                                     label="Scale"
-                                                    value={metaData.scale}
-                                                    onChange={(e) => handleAttributeChange("sd", index, e)}
+                                                    value={item.scale}
+                                                    onChange={(e) => handleAttributeChange("scale", index, e)}
                                                     fullWidth
                                                 />
                                             </Grid>
