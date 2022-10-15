@@ -40,7 +40,6 @@ class DeviceRunner(threading.Thread):
 
     def get_device(self, device_id):
         device = self._devices.get(device_id, {}).get('device', None)
-        print(device)
         if device == None:
             self.logger.error(f'Device not found with id {device_id}')
             raise KeyError(f'Device not found with id {device_id}')
@@ -122,7 +121,6 @@ class DeviceRunner(threading.Thread):
         future = asyncio.run_coroutine_threadsafe(device.start(), self.loop)
         self._devices[device.device_id]['task'] = future 
         self.logger.info(f'Starting Device with ID {device.device_id}')
-        print(self.loop.is_running)
         return True
 
 

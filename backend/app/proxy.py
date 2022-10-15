@@ -96,7 +96,6 @@ def pause_device(device_id:int):
     headers = {
         "Access-Control-Allow-Private-Network": "true"
     }
-    print('HERE')
     if device_status==False:
         return HTTPException(status_code=409, detail='Device Already Paused')
 

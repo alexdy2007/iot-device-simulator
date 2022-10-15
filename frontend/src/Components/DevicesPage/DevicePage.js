@@ -39,7 +39,10 @@ const DevicePage = () => {
         <Paper elevation={1}>
           <Grid container spacing={1}>
             <Grid xs={12}>
-                <Accordion expanded={createDevice} sx={{".MuiAccordionSummary-root": { "&:hover" :{backgroundColor:'#d3d3d3'}}}}onChange={createDeviceChange}>
+                <Accordion expanded={createDevice} 
+                sx={{".MuiAccordionSummary-root": { "&:hover" :{backgroundColor:'#d3d3d3'}}}}
+                onChange={createDeviceChange}
+                >
                     <AccordionSummary
                     expandIcon={<ExpandMoreIcon />}
                     aria-controls="panel1a-content"
