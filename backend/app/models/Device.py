@@ -7,6 +7,7 @@ from datetime import datetime
 class DeviceBase(BaseModel):
     delay: int
     meta_data: Dict[str, str]
+    endpoint: str
 
 class DeviceCreate(DeviceBase):
     delay: int

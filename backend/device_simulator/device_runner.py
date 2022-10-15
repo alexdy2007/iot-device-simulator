@@ -30,6 +30,10 @@ class DeviceRunner(threading.Thread):
         logger = logging.getLogger('DeviceRunner')
         return logger
 
+    def add_device(self, device):
+        self._devices[device.device_id] = {'task': None, 'device':device}
+        self.start_device(device.device_id)
+
     def is_device_running(self, device_id):
         try:
             device_item = self.get_device_item(device_id)

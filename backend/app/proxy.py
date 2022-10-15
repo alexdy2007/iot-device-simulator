@@ -12,6 +12,8 @@ from fastapi.logger import logger as fastapi_logger
 
 from fastapi.middleware.cors import CORSMiddleware
 
+from device_simulator.distributions import BetaDist, NormalDist
+
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -49,12 +51,50 @@ async def root():
 
 @app.post("/devices")
 async def create_device(device: DeviceCreate):
-    raise HTTPException(status_code=501, detail='Not Implemented Yet')
+
+    print(device.attributes)
+    print(type(device))
+    attributes = {}
+    meta_data = {}
+
+    for attribute in device.attributes:
+        name = attribute['name']
+        if attribute['model'] == 'Normal':
+            mean = int(attribute['mean'])
+            sd = int(attribute['sd'])
+            attributes[name] = NormalDist(mean=mean, sd=sd)
+        elif attribute['model'] == 'Beta':
+            beta_a = int(attribute['beta_a'])
+            beta_b = int(attribute['beta_b'])
+            scale = int(attribute['scale'])
+            attributes[name] = BetaDist(a=beta_a, b=beta_b, scale=scale)
+        else:
+            msg = f"Model of type {attribute['model']} not implmented"
+            raise HTTPException(status_code=501, detail=msg)
+
+    for meta in device.meta_data:
+        key = meta['key']
+        value = meta['value']
+        meta_data[key] = value
+    
+    delay = device.delay
+    # ENDPOINT TODO device.endpoint
+
+    device = Device(delay=delay, attributes=attributes, meta_data=meta_data)
+    device_sim.add_device(device)
+    
+    headers = {
+        "Access-Control-Allow-Private-Network": "true"
+    }
+
+    response = JSONResponse(
+        headers=headers,
+        content={"detail":'Device Created and Started'}
+    )
+    return response
 
 @app.get("/devices/{device_id}")
 def get_device(device_id:int):
-
-   
 
     device = device_sim.get_device(device_id)
     device_info = device.get_device_info()

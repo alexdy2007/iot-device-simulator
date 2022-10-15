@@ -27,12 +27,16 @@ const DevicePage = () => {
         setCreateDevice(!createDevice);
     };
 
-    useEffect(() => {
+    const getDeviceMetaDataCallback = () =>{
         getDevicesMetaData()
-            .then((deviceMetaData) => {
-                console.log(deviceMetaData);
-                setDeviceMetaData(deviceMetaData)
-            })
+        .then((deviceMetaData) => {
+            console.log(deviceMetaData);
+            setDeviceMetaData(deviceMetaData)
+        })
+    }
+
+    useEffect(() => {
+        getDeviceMetaDataCallback()
     }, []);
 
     return (
@@ -53,7 +57,7 @@ const DevicePage = () => {
                                 Create New Device</Typography>
                         </AccordionSummary>
                         <AccordionDetails>
-                            <CreateDevice></CreateDevice>
+                            <CreateDevice getDeviceMetaDataCallback={getDeviceMetaDataCallback}></CreateDevice>
                         </AccordionDetails>
                     </Accordion>
                 </Grid>

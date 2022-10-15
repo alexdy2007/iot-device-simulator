@@ -18,19 +18,20 @@ import { DISTRIBUTIONS } from '../../Constants/distributions'
 
 import {SnackbarContext} from "../../Contexts/SnackBarAlertContext"
 
+import { createDevice } from '../../Api/devives';
+
+
 const CreateDevice = (props) => {
 
-    const metaDataRow = { "key": "", "value": "" }
+    const metaDataRow = { "key": "Location", "value": "Leeds" }
     const [metaData, setMetaData] = useState([metaDataRow]);
 
-    const attributeRow = { "model": "Normal", "name": "", 'sd':1, 'mean':10, 'beta_a':1, 'beta_b':2, 'scale':10}
+    const attributeRow = { "model": "Normal", "name": "Flow", 'sd':1, 'mean':10, 'beta_a':1, 'beta_b':2, 'scale':10}
     const [attributes, setAttributes] = useState([attributeRow]);
 
     const [properties, setProperties] = useState({ "delay": 10, "numberDevices": 1, "start": true, 'endpoint': 'PlaceHolder' });
 
     const {snackbar, setSnackbar} = useContext(SnackbarContext);
-
-    const [ignored, forceUpdate] = useReducer(x => x + 1, 0);
 
     // HELPER
     const removeByIndex = (obj, index) => {
@@ -86,11 +87,10 @@ const CreateDevice = (props) => {
         setMetaData([metaDataRow])
         setAttributes([attributeRow])
         setProperties({ "delay": 10, "numberDevices": 1, "start": true, 'endpoint': 'PlaceHolder' })
-        forceUpdate()
         return
     }
 
-    const createDevices = () => {
+    const createDevices = async() => {
         let propertErrors = checkValidPropertiesData(properties)
         let metaDataErrors = checkValidMetaData(metaData)
         let attributeErrors = checkValidAttributesData(attributes);
@@ -103,7 +103,22 @@ const CreateDevice = (props) => {
             return
         }
 
-        setSnackbar({...snackbar, message:'Pass', severity:"success", open:true})
+        let devicePostData = {
+            "delay": properties.delay,
+            "endpoint": properties.endpoint,
+            "start_instantly":true,
+            "meta_data": metaData,
+            "attributes": attributes            
+        }
+
+        let response = await createDevice(devicePostData).then(response => response)
+        if(response.status < 200 || response.status>300){
+            let msg = `Failed Creation of Device, Error Code ${response.status}, msg: ${response.statusText}`
+            setSnackbar({...snackbar, message:msg, severity:"error", open:true})
+            return 
+        }
+        setSnackbar({...snackbar, message:'Device Created', severity:"success", open:true})
+        props.getDeviceMetaDataCallback()
         resetCreateDevice();
 
     }
@@ -185,7 +200,6 @@ const CreateDevice = (props) => {
             }
         })
         return errors
-
     }
 
     return (
@@ -194,7 +208,6 @@ const CreateDevice = (props) => {
             sx={{
                 '& .MuiTextField-root': { m: 1, width: '90%' },
             }}
-
         >
             <Grid container spacing={0}>
                 <Grid xs={12} sm={12} md={3} lg={2} xl={2} >
@@ -232,12 +245,9 @@ const CreateDevice = (props) => {
                                 label="Endpoint"
                                 onChange={(e) => handlepropertiesChange("endpoint", e)}
                             >
-
                                 <MenuItem value={'PlaceHolder'}>My Event Hub</MenuItem>
                             </Select>
                             <FormHelperText sx={{ marginLeft: '6%' }}>Configured Endpoint</FormHelperText>
-
-
                         </Grid>
                     </Grid>
                 </Grid>

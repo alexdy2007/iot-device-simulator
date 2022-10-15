@@ -136,5 +136,31 @@ def test_start_stop_start():
 
     dr.stop_runner()
 
+def test_add_new_device():
+    
+    device_1 = Device(delay=1, attributes=attributes, meta_data=meta_data)
+    device_2 = Device(delay=1, attributes=attributes, meta_data=meta_data)
+
+    device_to_run = [device_1]
+    dr = DeviceRunner(device_to_run)
+    dr.start_all_devices()
+
+    sleep(6)
+    dr.add_device(device_2)
+    add_time = datetime.now()
+    sleep(6)
+    
+    voltage_attr = device_2.attributes_history['Voltage']
+    times = [x['time'] for x in voltage_attr]
+    last_time = sorted(times, reverse=True)[0]
+    time_diff = last_time - add_time
+
+    num_running_devices = dr.get_number_running_devices()
+
+    assert num_running_devices==2, 'make sure both devices running'
+    assert time_diff.seconds > 0, "assert new reading occured after add date"
+
+    dr.stop_runner()
+
 
 

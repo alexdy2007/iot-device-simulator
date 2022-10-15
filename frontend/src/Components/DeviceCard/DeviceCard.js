@@ -1,5 +1,5 @@
 import Grid from '@mui/material/Unstable_Grid2';
-import { Fragment, useState, useEffect } from 'react';
+import { Fragment, useState, useEffect, useRef } from 'react';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import { CardHeader } from '@mui/material';
@@ -23,7 +23,9 @@ const DeviceCard = (props) => {
     let title = "Device ID : " + props.device.device_id
 
     const [deviceData, setDeviceData] = useState([]);
+    const [justStarted, setJustStarted] = useState(true);
     const [deviceStatus, setDeviceStatus] = useState(props.device.running);
+    const interval = useRef();
 
     const refreshDeviceData = () => {
         getDeviceData(props.device.device_id)
@@ -33,7 +35,6 @@ const DeviceCard = (props) => {
     }
 
     const changeDeviceStatus = () => {
-
         if (deviceStatus == true) {
             pauseDevice(props.device.device_id).then(
                 setDeviceStatus(!deviceStatus)
@@ -50,13 +51,16 @@ const DeviceCard = (props) => {
 
     }
 
-
-
-
     useEffect(() => {
-        refreshDeviceData()
+        clearInterval(interval.current);
+        if(justStarted===true){
+            refreshDeviceData()
+            setJustStarted(false)
+        }
+
+
         if (deviceStatus === true) {
-            const interval = setInterval(() => {
+            interval.current = setInterval(() => {
                 refreshDeviceData()
                 if (deviceStatus === false) {
                     clearInterval(interval)
@@ -87,7 +91,9 @@ const DeviceCard = (props) => {
                     </Fragment>
 
                 }
-                title={title}>
+                title={title}
+                sx={{paddingBottom:'0px', paddingTop:'3px'}}
+                >
 
             </CardHeader>
             <CardContent>

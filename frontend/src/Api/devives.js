@@ -20,3 +20,17 @@ export const startDevice = async(device_id) => {
     let url = `${BASE_URL}/start/${device_id}`
     return fetch(url).then( (res) => res.json() );
 };
+
+export const createDevice = async(deviceData) => {
+    let url = BASE_URL
+    const rawResponse = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(deviceData),
+    })
+    const response = await rawResponse;
+    return response
+
+}
