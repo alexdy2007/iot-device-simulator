@@ -9,13 +9,13 @@ frontend start
 npm start
 
 TODO
-. Pagination of devices
-. Search Devices
-. Delte Devices
-. Endpoint Functionality
-. Multiple Endpoint Adding
-. Marcov Chain Distribution
-. Gamma Distribution
-. Device Fault percentile
-. Device Fault Alert Flagging
-. Trigger a Fault
+- Pagination of devices
+- Search Devices
+- Delte Devices
+- Endpoint Functionality
+- Multiple Endpoint Adding
+- Marcov Chain Distribution
+- Gamma Distribution
+- Device Fault percentile
+- Device Fault Alert Flagging
+- Trigger a Fault
