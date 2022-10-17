@@ -57,7 +57,8 @@ const CreateEndpointDialog = (props) => {
             return 
         }
         props.getEndpointsCall()
-        setSnackbar({...snackbar, message:'Endpoint Created', severity:"success", open:true})
+        let msg = `Endpoint ${endpoint.name} Created`
+        setSnackbar({...snackbar, message:msg, severity:"success", open:true})    
         setEndpoint(defaultEndpoint)
         setOpenCreateEndpoint(false)
     

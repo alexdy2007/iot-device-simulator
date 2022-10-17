@@ -3,8 +3,10 @@ import logging
 from typing import Union
 from fastapi import FastAPI, HTTPException, Response
 from device_simulator.device_runner import DeviceRunner
-from device_simulator.device import Device, create_dummy_device
+from device_simulator.device import Device
 from app.models.device import DeviceCreate
+
+from device_simulator.test.stubs import create_dummy_device
 
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
@@ -14,11 +16,13 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from device_simulator.distributions import BetaDist, NormalDist
 
-from endpoints.endpoint_store import EndPointStore 
+from endpoints.endpoint_runner import EndpointRunner
 from endpoints.eventhub import EventhubConfig
 from endpoints.nullendpoint import NullEndpointConfig
 
 from app.models.endpoints import EventHubModel
+
+import queue
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -38,10 +42,11 @@ device_starter_1 = create_dummy_device(delay=5)
 device_starter_2 = create_dummy_device(location='Horsforth Pumping')
 device_starter_3 = create_dummy_device(delay=20, location='Harrogate Sewage Treatment')
 
-device_sim = DeviceRunner([device_starter_1, device_starter_2, device_starter_3])
+device_reading_queue = queue.Queue()
+device_sim = DeviceRunner([device_starter_1, device_starter_2, device_starter_3], device_reading_queue=device_reading_queue)
 
 null_endpoint = NullEndpointConfig()
-endpoint_store = EndPointStore([null_endpoint])
+endpoint_store = EndpointRunner([null_endpoint], device_reading_queue)
 
 @app.on_event("startup")
 async def startup_event():
@@ -60,8 +65,7 @@ async def root():
 @app.post("/devices", status_code=201)
 async def create_device(device: DeviceCreate):
 
-    print(device.attributes)
-    print(type(device))
+   
     attributes = {}
     meta_data = {}
 
@@ -86,12 +90,12 @@ async def create_device(device: DeviceCreate):
         meta_data[key] = value
     
     delay = device.delay
+    endpoint_id = device.endpoint
 
     number_devices = int(device.number_devices)
-    # ENDPOINT TODO device.endpoint
 
     for _ in range(number_devices):
-        device = Device(delay=delay, attributes=attributes, meta_data=meta_data)
+        device = Device(delay=delay, attributes=attributes, meta_data=meta_data, endpoint_id=endpoint_id, device_reading_queue=device_reading_queue)
         device_sim.add_device(device)
         
     headers = {
@@ -200,7 +204,7 @@ def start_device(device_id:int):
 @app.get("/endpoints/")
 def get_all_endpoints():
 
-    response_data = [x.json_format() for x in endpoint_store.endpoints]
+    response_data = [x.json_format() for x in endpoint_store.get_all_endpoints()]
     
     print(response_data)
 

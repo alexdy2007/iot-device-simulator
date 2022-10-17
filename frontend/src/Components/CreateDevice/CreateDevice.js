@@ -35,7 +35,9 @@ const CreateDevice = (props) => {
     const [properties, setProperties] = useState(defaultProperties);
 
     const [openCreateEndpoint, setOpenCreateEndpoint] = useState(false);
-    const [endpoints, setEndpoints] = useState([{'name':'None', 'id':-1, 'connection_string':''}]);
+
+    const defaultEndpoint = {'name':'None', 'id':-1, 'connection_string':''}
+    const [endpoints, setEndpoints] = useState([defaultEndpoint]);
 
     const {snackbar, setSnackbar} = useContext(SnackbarContext);
 
@@ -59,10 +61,7 @@ const CreateDevice = (props) => {
     }
 
     useEffect(() => {
-        return () => {
-            getEndpointsCall()
-        };
-
+        getEndpointsCall()
     },[])
 
     // META DATA
@@ -264,7 +263,7 @@ const CreateDevice = (props) => {
                         </Grid>
                         <Grid xs={10}>
                             <Select
-                                sx={{ minWidth: '80%', marginTop: '2%', marginLeft: '4%' }}
+                                sx={{ minWidth: '70%', marginTop: '2%', marginLeft: '4%' }}
                                 size="small"
                                 labelId="Endpoint"
                                 id={"Endpoint"}
