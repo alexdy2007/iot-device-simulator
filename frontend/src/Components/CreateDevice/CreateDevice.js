@@ -31,7 +31,8 @@ const CreateDevice = (props) => {
     const attributeRow = { "model": "Normal", "name": "Flow", 'sd':1, 'mean':10, 'beta_a':1, 'beta_b':2, 'scale':10}
     const [attributes, setAttributes] = useState([attributeRow]);
 
-    const [properties, setProperties] = useState({ "delay": 10, "numberDevices": 1, "start": true, 'endpoint': -1 });
+    const defaultProperties = { "delay": 10, "numberDevices": 1, "start": true, 'endpoint': -1 }
+    const [properties, setProperties] = useState(defaultProperties);
 
     const [openCreateEndpoint, setOpenCreateEndpoint] = useState(false);
     const [endpoints, setEndpoints] = useState([{'name':'None', 'id':-1, 'connection_string':''}]);
@@ -107,7 +108,7 @@ const CreateDevice = (props) => {
     const resetCreateDevice = () => {
         setMetaData([metaDataRow])
         setAttributes([attributeRow])
-        setProperties({ "delay": 10, "numberDevices": 1, "start": true, 'endpoint': 'PlaceHolder' })
+        setProperties(defaultProperties)
         return
     }
 
