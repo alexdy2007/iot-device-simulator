@@ -4,7 +4,6 @@ import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import { CardHeader } from '@mui/material';
 
-import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton'
 import Paper from '@mui/material/Paper';
@@ -18,6 +17,8 @@ import PauseIcon from '@mui/icons-material/Pause';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import DeleteIcon from '@mui/icons-material/Delete';
 
+
+
 const DeviceCard = (props) => {
 
     let title = "Device ID : " + props.device.device_id
@@ -26,6 +27,8 @@ const DeviceCard = (props) => {
     const [justStarted, setJustStarted] = useState(true);
     const [deviceStatus, setDeviceStatus] = useState(props.device.running);
     const interval = useRef();
+
+
 
     const refreshDeviceData = () => {
         getDeviceData(props.device.device_id)
@@ -50,6 +53,15 @@ const DeviceCard = (props) => {
         }
 
     }
+
+    useEffect(() => {
+
+        return () => {
+            console.log('Unmount Device Card')
+            clearInterval(interval.current)
+        };
+
+    },[])
 
     useEffect(() => {
         clearInterval(interval.current);

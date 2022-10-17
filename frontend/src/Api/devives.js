@@ -34,3 +34,16 @@ export const createDevice = async(deviceData) => {
     return response
 
 }
+
+export const deleteAllDevices = async() => {
+
+    let url = BASE_URL
+    const rawResponse = await fetch(url, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    })
+    const response = await rawResponse;
+    return response
+}

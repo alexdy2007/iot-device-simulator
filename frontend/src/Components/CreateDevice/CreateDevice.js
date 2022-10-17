@@ -1,4 +1,4 @@
-import { Fragment, useState, useContext, useReducer } from 'react';
+import { Fragment, useState, useContext, useEffect } from 'react';
 import TextField from "@mui/material/TextField";
 
 import Button from "@mui/material//Button";
@@ -8,17 +8,19 @@ import Select from '@mui/material/Select';
 
 import IconButton from '@mui/material/IconButton'
 import DeleteIcon from "@mui/icons-material/Delete";
+
 import Box from "@mui/material/Box";
 import Grid from '@mui/material/Unstable_Grid2';
 
 import Typography from '@mui/material/Typography';
 import FormHelperText from '@mui/material/FormHelperText';
 
-import { DISTRIBUTIONS } from '../../Constants/distributions'
-
-import {SnackbarContext} from "../../Contexts/SnackBarAlertContext"
-
+import { DISTRIBUTIONS } from '../../Constants/distributions';
+import {SnackbarContext} from "../../Contexts/SnackBarAlertContext";
 import { createDevice } from '../../Api/devives';
+import {getEndpoints} from '../../Api/endpoints';
+
+import CreateEndpointDialog from '../CreateEndpoint/CreateEndpoint';
 
 
 const CreateDevice = (props) => {
@@ -29,7 +31,10 @@ const CreateDevice = (props) => {
     const attributeRow = { "model": "Normal", "name": "Flow", 'sd':1, 'mean':10, 'beta_a':1, 'beta_b':2, 'scale':10}
     const [attributes, setAttributes] = useState([attributeRow]);
 
-    const [properties, setProperties] = useState({ "delay": 10, "numberDevices": 1, "start": true, 'endpoint': 'PlaceHolder' });
+    const [properties, setProperties] = useState({ "delay": 10, "numberDevices": 1, "start": true, 'endpoint': -1 });
+
+    const [openCreateEndpoint, setOpenCreateEndpoint] = useState(false);
+    const [endpoints, setEndpoints] = useState([{'name':'None', 'id':-1, 'connection_string':''}]);
 
     const {snackbar, setSnackbar} = useContext(SnackbarContext);
 
@@ -42,6 +47,22 @@ const CreateDevice = (props) => {
     const isNumeric = (val) => {
         return !isNaN(parseFloat(val)) && isFinite(val);
     }
+
+    // ENDPOINTS
+
+    const getEndpointsCall = () => {
+        getEndpoints()
+        .then((endpointData) => {
+            setEndpoints(endpointData)
+        })
+    }
+
+    useEffect(() => {
+        return () => {
+            getEndpointsCall()
+        };
+
+    },[])
 
     // META DATA
     const handleMetaValueChange = (key, index, e) => {
@@ -106,6 +127,7 @@ const CreateDevice = (props) => {
         let devicePostData = {
             "delay": properties.delay,
             "endpoint": properties.endpoint,
+            'number_devices': properties.numberDevices,
             "start_instantly":true,
             "meta_data": metaData,
             "attributes": attributes            
@@ -118,6 +140,10 @@ const CreateDevice = (props) => {
             return 
         }
         setSnackbar({...snackbar, message:'Device Created', severity:"success", open:true})
+        
+        // Need time to wait for devices to turn on, couldn't be arsed writing code to check all new created devices turned on
+        await new Promise(r => setTimeout(r, 500));
+
         props.getDeviceMetaDataCallback()
         resetCreateDevice();
 
@@ -152,7 +178,7 @@ const CreateDevice = (props) => {
             if(a.name===''){
                 errors.push('Attributes name must not be blank')
             }
-            if(a.model=='Normal'){
+            if(a.model==='Normal'){
                 if(!isNumeric(a.mean)){
                     errors.push('Attributes Normal dist mean must be numeric')
                 }
@@ -163,7 +189,7 @@ const CreateDevice = (props) => {
                     errors.push('Attributes Normal dist Standard deviation must be gte 0')
                 }
             }
-            if(a.model=='Beta'){
+            if(a.model==='Beta'){
                 if(!isNumeric(a.beta_a)){
                     errors.push('Attributes beta model alpha must be numeric')
                 }
@@ -237,7 +263,7 @@ const CreateDevice = (props) => {
                         </Grid>
                         <Grid xs={10}>
                             <Select
-                                sx={{ minWidth: '90%', marginTop: '2%', marginLeft: '4%' }}
+                                sx={{ minWidth: '80%', marginTop: '2%', marginLeft: '4%' }}
                                 size="small"
                                 labelId="Endpoint"
                                 id={"Endpoint"}
@@ -245,8 +271,15 @@ const CreateDevice = (props) => {
                                 label="Endpoint"
                                 onChange={(e) => handlepropertiesChange("endpoint", e)}
                             >
-                                <MenuItem value={'PlaceHolder'}>My Event Hub</MenuItem>
+                                {endpoints.map((e, i) => (
+                                    <MenuItem key={'endpoint'+i} value={e.id}>{e.name}</MenuItem>
+                                ))}
                             </Select>
+                            <CreateEndpointDialog 
+                                openCreateEndpoint={openCreateEndpoint} 
+                                setOpenCreateEndpoint={setOpenCreateEndpoint}
+                                getEndpointsCall={getEndpointsCall}>
+                            </CreateEndpointDialog>
                             <FormHelperText sx={{ marginLeft: '6%' }}>Configured Endpoint</FormHelperText>
                         </Grid>
                     </Grid>
@@ -315,7 +348,7 @@ const CreateDevice = (props) => {
                                 </Grid>
                                 <Grid xs={2}>
                                     <Select
-                                        sx={{ minWidth: '100%', marginTop: '8%' }}
+                                        sx={{ minWidth: '100%', marginTop: '5%' }}
                                         size="small"
                                         labelId="distribution"
                                         id={"distribution" + index}
@@ -330,7 +363,7 @@ const CreateDevice = (props) => {
                                     </Select>
                                 </Grid>
 
-                                {attributes[index]['model'] == 'Normal' ?
+                                {attributes[index]['model'] === 'Normal' ?
                                     <Fragment>
                                         <Grid xs={2}>
                                             <TextField
@@ -365,7 +398,7 @@ const CreateDevice = (props) => {
                                         </Grid>
 
                                     </Fragment>
-                                    : attributes[index]['model'] == 'Beta' ?
+                                    : attributes[index]['model'] === 'Beta' ?
                                         <Fragment>
                                             <Grid xs={2}>
                                                 <TextField

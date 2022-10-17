@@ -4,7 +4,7 @@ from typing import Union
 from fastapi import FastAPI, HTTPException, Response
 from device_simulator.device_runner import DeviceRunner
 from device_simulator.device import Device, create_dummy_device
-from app.models.Device import DeviceCreate
+from app.models.device import DeviceCreate
 
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
@@ -14,6 +14,11 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from device_simulator.distributions import BetaDist, NormalDist
 
+from endpoints.endpoint_store import EndPointStore 
+from endpoints.eventhub import EventhubConfig
+from endpoints.nullendpoint import NullEndpointConfig
+
+from app.models.endpoints import EventHubModel
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -35,6 +40,9 @@ device_starter_3 = create_dummy_device(delay=20, location='Harrogate Sewage Trea
 
 device_sim = DeviceRunner([device_starter_1, device_starter_2, device_starter_3])
 
+null_endpoint = NullEndpointConfig()
+endpoint_store = EndPointStore([null_endpoint])
+
 @app.on_event("startup")
 async def startup_event():
 
@@ -49,7 +57,7 @@ def shutdown_event():
 async def root():
     return {"message": "Hello World"}
 
-@app.post("/devices")
+@app.post("/devices", status_code=201)
 async def create_device(device: DeviceCreate):
 
     print(device.attributes)
@@ -78,18 +86,23 @@ async def create_device(device: DeviceCreate):
         meta_data[key] = value
     
     delay = device.delay
+
+    number_devices = int(device.number_devices)
     # ENDPOINT TODO device.endpoint
 
-    device = Device(delay=delay, attributes=attributes, meta_data=meta_data)
-    device_sim.add_device(device)
-    
+    for _ in range(number_devices):
+        device = Device(delay=delay, attributes=attributes, meta_data=meta_data)
+        device_sim.add_device(device)
+        
     headers = {
         "Access-Control-Allow-Private-Network": "true"
     }
 
+    msg = f"{number_devices} Devices created and started"
+
     response = JSONResponse(
         headers=headers,
-        content={"detail":'Device Created and Started'}
+        content={"detail": msg}
     )
     return response
 
@@ -114,6 +127,22 @@ def get_devices():
     devices = device_sim.get_all_devices()
     devices_info = [d.get_device_info() for d in devices]
     return devices_info
+
+@app.delete("/devices", status_code=200)
+def delete_all_devices():
+    device_sim.remove_all_devices()
+    
+    headers = {
+        "Access-Control-Allow-Private-Network": "true"
+    }
+   
+    response = JSONResponse(
+        headers=headers,
+        content={"detail":'All Devices Deleted'}
+    )
+    
+    return response 
+
 
 @app.get("/devices/readings/{device_id}")
 def get_device_reading(device_id:int, n_historic:int=10):
@@ -167,3 +196,60 @@ def start_device(device_id:int):
     )
 
     return response
+
+@app.get("/endpoints/")
+def get_all_endpoints():
+
+    response_data = [x.json_format() for x in endpoint_store.endpoints]
+    
+    print(response_data)
+
+
+    headers = {
+        "Access-Control-Allow-Private-Network": "true"
+    }
+    response = JSONResponse(
+        headers=headers,
+        content=response_data
+    )
+
+    return response
+
+@app.get("/endpoints/{endpoint_id}")
+def get_endpoint(endpoint_id:int):
+
+    endpoint = endpoint_store.get_endpoint_by_id(endpoint_id)
+    response_data = endpoint.json_format()
+
+    headers = {
+        "Access-Control-Allow-Private-Network": "true"
+    }
+    response = JSONResponse(
+        headers=headers,
+        content=response_data
+    )
+
+    return response
+
+@app.post("/endpoints/", status_code=201)
+async def create_endpont(endpoint: EventHubModel):
+
+    if endpoint.endpoint_type=='EventHub':
+        endpoint_model = EventhubConfig(name=endpoint.name, connection_string=endpoint.connection_string)
+    else:
+        detail = f"Endpoint type {endpoint.endpoint_type} not reconised"
+        return HTTPException(status_code=404, detail=detail)
+    
+
+    endpoint_store.add_endpoint(endpoint_model)   
+    headers = {
+        "Access-Control-Allow-Private-Network": "true"
+    }
+
+    msg = f"added endpoint {endpoint_model.name}"
+    response = JSONResponse(
+        headers=headers,
+        content={"detail": msg}
+    )
+    return response
+    

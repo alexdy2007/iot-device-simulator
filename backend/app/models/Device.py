@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-from typing import Dict, Union, List
+from typing import Dict, Union, List, Optional
 from datetime import datetime
 
 
@@ -8,6 +8,7 @@ class DeviceBase(BaseModel):
     delay: int
     meta_data: Dict[str, str]
     endpoint: str
+    number_devices: Optional[int]
 
 class DeviceCreate(DeviceBase):
     delay: int

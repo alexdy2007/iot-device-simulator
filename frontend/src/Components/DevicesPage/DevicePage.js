@@ -1,10 +1,11 @@
+import { useState, useEffect, useContext } from 'react';
+import DeviceCard from '../DeviceCard/DeviceCard'
+import { getDevicesMetaData, deleteAllDevices } from '../../Api/devives'
+import {SnackbarContext} from "../../Contexts/SnackBarAlertContext"
+import CreateDevice from '../CreateDevice/CreateDevice'
+
 import Grid from '@mui/material/Unstable_Grid2';
 import Paper from '@mui/material/Paper';
-
-
-import { useState, useEffect, useCallback } from 'react';
-import DeviceCard from '../DeviceCard/DeviceCard'
-import { getDevicesMetaData } from '../../Api/devives'
 
 import Accordion from '@mui/material/Accordion';
 import AccordionDetails from '@mui/material/AccordionDetails';
@@ -13,15 +14,17 @@ import Typography from '@mui/material/Typography';
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
+import IconButton from '@mui/material/IconButton'
+import DeleteIcon from "@mui/icons-material/Delete";
+import RefreshIcon from "@mui/icons-material/Refresh";
 
-import CreateDevice from '../CreateDevice/CreateDevice'
+
 
 const DevicePage = () => {
 
-    let number_cards = Array.from({ length: 5 }, (_, i) => i)
-
     const [deviceMetaData, setDeviceMetaData] = useState([]);
     const [createDevice, setCreateDevice] = useState(false);
+    const {snackbar, setSnackbar} = useContext(SnackbarContext);
 
     const createDeviceChange = () => {
         setCreateDevice(!createDevice);
@@ -29,9 +32,17 @@ const DevicePage = () => {
 
     const getDeviceMetaDataCallback = () =>{
         getDevicesMetaData()
-        .then((deviceMetaData) => {
-            console.log(deviceMetaData);
-            setDeviceMetaData(deviceMetaData)
+        .then((deviceData) => {
+            setDeviceMetaData(deviceData)
+        })
+    }
+
+    const deleteAllDevicesCall = () => {
+        deleteAllDevices()
+        .then(() => {
+            setDeviceMetaData([])
+            setSnackbar({...snackbar, message:'All Devices Removed', severity:"success", open:true})
+
         })
     }
 
@@ -42,7 +53,15 @@ const DevicePage = () => {
     return (
         <Paper elevation={1}>
             <Grid container spacing={1}>
-                <Grid xs={12}>
+                <Grid xs={1}>
+                    <IconButton sx={{'& svg': {fontSize: 30}}}  onClick={deleteAllDevicesCall} aria-label="delete">
+                        <DeleteIcon /> All
+                    </IconButton>
+                    <IconButton sx={{'& svg': {fontSize: 30}}}  onClick={getDeviceMetaDataCallback} aria-label="refresh">
+                        <RefreshIcon />
+                    </IconButton>
+                </Grid>              
+                <Grid xs={11}>
                     <Accordion expanded={createDevice}
                         sx={{ ".MuiAccordionSummary-root": { "&:hover": { backgroundColor: '#d3d3d3' } } }}
                         onChange={createDeviceChange}
@@ -54,7 +73,7 @@ const DevicePage = () => {
                         >
                             <Typography variant="h4" marginLeft="35%">
                                 <AddCircleIcon />
-                                Create New Device</Typography>
+                                Create New Devices</Typography>
                         </AccordionSummary>
                         <AccordionDetails>
                             <CreateDevice getDeviceMetaDataCallback={getDeviceMetaDataCallback}></CreateDevice>
