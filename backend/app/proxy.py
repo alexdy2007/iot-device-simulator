@@ -38,20 +38,25 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-device_starter_1 = create_dummy_device(delay=5)
-device_starter_2 = create_dummy_device(location='Horsforth Pumping')
-device_starter_3 = create_dummy_device(delay=20, location='Harrogate Sewage Treatment')
-
 device_reading_queue = queue.Queue()
-device_sim = DeviceRunner([device_starter_1, device_starter_2, device_starter_3], device_reading_queue=device_reading_queue)
+
+device_starter_1 = create_dummy_device(delay=5, queue=device_reading_queue, endpoint_id=2)
+device_starter_2 = create_dummy_device(delay=5, queue=device_reading_queue, endpoint_id=1)
+
+device_sim = DeviceRunner([device_starter_1,device_starter_2], device_reading_queue=device_reading_queue)
+
 
 null_endpoint = NullEndpointConfig()
-endpoint_store = EndpointRunner([null_endpoint], device_reading_queue)
+eventhub_endpoint = EventhubConfig(name='EventHubTest', connection_string='Endpoint=sb://device-sim-tester-1.servicebus.windows.net/;SharedAccessKeyName=sendtestmessage;SharedAccessKey=KPO+9RRL1Ht8jyKETVXKZzAorHIEzi6aX5yoO1A3l8g=', eventhub_name='test_eventhub')
+
+endpoint_runner = EndpointRunner([null_endpoint, eventhub_endpoint], device_reading_queue)
 
 @app.on_event("startup")
 async def startup_event():
 
     device_sim.start_all_devices()
+    endpoint_runner.start_collect_messages()
+    endpoint_runner.start_all_endpoints()
 
 @app.on_event("shutdown")
 def shutdown_event():
@@ -90,7 +95,7 @@ async def create_device(device: DeviceCreate):
         meta_data[key] = value
     
     delay = device.delay
-    endpoint_id = device.endpoint
+    endpoint_id = int(device.endpoint)
 
     number_devices = int(device.number_devices)
 
@@ -204,11 +209,8 @@ def start_device(device_id:int):
 @app.get("/endpoints/")
 def get_all_endpoints():
 
-    response_data = [x.json_format() for x in endpoint_store.get_all_endpoints()]
+    response_data = [x.json_format() for x in endpoint_runner.get_all_endpoints()]
     
-    print(response_data)
-
-
     headers = {
         "Access-Control-Allow-Private-Network": "true"
     }
@@ -222,7 +224,7 @@ def get_all_endpoints():
 @app.get("/endpoints/{endpoint_id}")
 def get_endpoint(endpoint_id:int):
 
-    endpoint = endpoint_store.get_endpoint_by_id(endpoint_id)
+    endpoint = endpoint_runner.get_endpoint_by_id(endpoint_id)
     response_data = endpoint.json_format()
 
     headers = {
@@ -239,13 +241,13 @@ def get_endpoint(endpoint_id:int):
 async def create_endpont(endpoint: EventHubModel):
 
     if endpoint.endpoint_type=='EventHub':
-        endpoint_model = EventhubConfig(name=endpoint.name, connection_string=endpoint.connection_string)
+        endpoint_model = EventhubConfig(name=endpoint.name, connection_string=endpoint.connection_string, eventhub_name=endpoint.eventhub_name)
     else:
         detail = f"Endpoint type {endpoint.endpoint_type} not reconised"
         return HTTPException(status_code=404, detail=detail)
     
 
-    endpoint_store.add_endpoint(endpoint_model)   
+    endpoint_runner.add_endpoint(endpoint_model)   
     headers = {
         "Access-Control-Allow-Private-Network": "true"
     }

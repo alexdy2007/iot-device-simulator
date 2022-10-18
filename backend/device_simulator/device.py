@@ -2,7 +2,6 @@ import asyncio
 import logging
 import sys
 
-from abc import ABC, abstractmethod
 from typing import Dict, Any
 from collections import deque
 from datetime import datetime
@@ -12,7 +11,7 @@ import calendar
 
 from device_simulator.distributions import Distribution
 
-class Device(ABC):
+class Device():
 
     count=0
 
@@ -22,7 +21,7 @@ class Device(ABC):
             cls.count = cls.count+1
             yield cls.count
 
-    def __init__(self, delay:int=10, attributes:Dict[str, Distribution]=None, meta_data:Dict[str,str] = None, max_history:int=30, endpoint_id:int=-1, device_reading_queue=None):
+    def __init__(self, delay:int=10, attributes:Dict[str, Distribution]=None, meta_data:Dict[str,str] = None, max_history:int=30, endpoint_id:int=1, device_reading_queue=None):
         self.device_id = next(self.gen_id())
         self.delay=delay
         self.meta_data = meta_data

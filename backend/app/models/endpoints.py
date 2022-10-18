@@ -8,3 +8,4 @@ class EndpointBase(BaseModel):
 
 class EventHubModel(EndpointBase):
     connection_string:str
+    eventhub_name:str

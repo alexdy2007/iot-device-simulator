@@ -22,7 +22,7 @@ const CreateEndpointDialog = (props) => {
     const openCreateEndpoint = props.openCreateEndpoint
     const setOpenCreateEndpoint = props.setOpenCreateEndpoint
 
-    const defaultEndpoint = {'name':'', 'connection_string':'', 'endpoint_type':'EventHub'}
+    const defaultEndpoint = {'name':'', 'connection_string':'', 'eventhub_name':'', 'endpoint_type':'EventHub'}
 
     const [endpoint, setEndpoint] = useState(defaultEndpoint);
     const {snackbar, setSnackbar} = useContext(SnackbarContext);
@@ -116,18 +116,33 @@ const CreateEndpointDialog = (props) => {
                     </Grid>
 
                     {endpoint.endpoint_type==='EventHub' ?
-                        <Grid xs={12}>
-                            <TextField
-                                autoFocus
-                                margin="dense"
-                                id="ConnectionStringEventHub"
-                                label="ConnectionString"
-                                value={endpoint.connection_string}
-                                onChange={(e) => handleEndpointChange('connection_string', e)}
-                                fullWidth
-                                variant="standard"
-                            />
-                        </Grid>
+                        <Fragment>
+                            <Grid xs={12}>
+                                <TextField
+                                    autoFocus
+                                    margin="dense"
+                                    id="ConnectionStringEventHub"
+                                    label="ConnectionString"
+                                    value={endpoint.connection_string}
+                                    onChange={(e) => handleEndpointChange('connection_string', e)}
+                                    fullWidth
+                                    variant="standard"
+                                />
+                            </Grid>
+                            <Grid xs={12}>
+                                <TextField
+                                    autoFocus
+                                    margin="dense"
+                                    id="EventHubName"
+                                    label="EventHub Name"
+                                    value={endpoint.eventhub_name}
+                                    onChange={(e) => handleEndpointChange('eventhub_name', e)}
+                                    fullWidth
+                                    variant="standard"
+                                />
+                            </Grid>
+                        </Fragment>
+                        
                     :
                     <Grid xs={12}>
                         <div><b>NOT IMPLEMENTED</b></div>

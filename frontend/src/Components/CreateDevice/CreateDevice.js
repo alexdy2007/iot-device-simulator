@@ -31,12 +31,12 @@ const CreateDevice = (props) => {
     const attributeRow = { "model": "Normal", "name": "Flow", 'sd':1, 'mean':10, 'beta_a':1, 'beta_b':2, 'scale':10}
     const [attributes, setAttributes] = useState([attributeRow]);
 
-    const defaultProperties = { "delay": 10, "numberDevices": 1, "start": true, 'endpoint': -1 }
+    const defaultProperties = { "delay": 10, "numberDevices": 1, "start": true, 'endpoint': 1 }
     const [properties, setProperties] = useState(defaultProperties);
 
     const [openCreateEndpoint, setOpenCreateEndpoint] = useState(false);
 
-    const defaultEndpoint = {'name':'None', 'id':-1, 'connection_string':''}
+    const defaultEndpoint = {'name':'None', 'id':1, 'connection_string':''}
     const [endpoints, setEndpoints] = useState([defaultEndpoint]);
 
     const {snackbar, setSnackbar} = useContext(SnackbarContext);

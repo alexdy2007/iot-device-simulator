@@ -101,7 +101,9 @@ class DeviceRunner(threading.Thread):
         return True
 
     def run(self):
-      
+        
+        self.logger.debug('Starting device runner')
+
         asyncio.set_event_loop(self.loop)
 
         if __debug__:
@@ -143,7 +145,7 @@ class DeviceRunner(threading.Thread):
 
 
     def stop_device(self, device_id):
-
+        
         if self.is_device_running(device_id)==False:
             self.logger.debug(f'Device {device_id} already stoped, cant stop')
             return False
@@ -163,30 +165,3 @@ class DeviceRunner(threading.Thread):
         self.stop_all_devices()
         if self.loop.is_running == True:
             self.loop.call_soon_threadsafe(self.loop.stop)
-
-if __name__ == '__main__':
-
-    from device_simulator.device import Device
-    from device_simulator.distributions import BetaDist, NormalDist
-    from time import sleep
-
-    
-    attributes = {
-        "Voltage":NormalDist(10,1),
-        "Amp":BetaDist(1,1,10)
-    }
-
-    meta_data = {
-        "Location":"Eccup Resevouir"
-    }
-
-    device_1 = Device(delay=1, attributes=attributes, meta_data=meta_data)
-    device_to_run = [device_1]
-    dr = DeviceRunner(device_to_run)
-    
-  
-    dr.start_all_devices()
-    sleep(5)
-
-    results = dr.get_last_n_readings_from_device(device_1.device_id, 3)
-    dr.stop_runner()
