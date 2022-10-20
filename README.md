@@ -12,6 +12,8 @@ npm start
 
 TODO
 - Pagination of devices
+- Group by devices
+- Change Terminology to match OSI PI
 - Search Devices
 - Delte Devices
 - Endpoint Functionality
