@@ -16,6 +16,7 @@ import DeviceChartHolder from '../DeviceChart/DeviceChartHolder'
 import PauseIcon from '@mui/icons-material/Pause';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import DeleteIcon from '@mui/icons-material/Delete';
+import ReportProblemIcon from '@mui/icons-material/ReportProblem';
 
 
 
@@ -25,6 +26,8 @@ const DeviceCard = (props) => {
 
     const [deviceData, setDeviceData] = useState([]);
     const [justStarted, setJustStarted] = useState(true);
+    const [errorCount, setErrorCount] = useState(0);
+
     const [deviceStatus, setDeviceStatus] = useState(props.device.running);
     const interval = useRef();
 
@@ -36,6 +39,11 @@ const DeviceCard = (props) => {
                 setDeviceData(deviceData)
             })
     }
+
+    useEffect(() => {
+        let newErrorCount = Math.max(errorCount-1, 0);
+        setErrorCount(newErrorCount);
+    },[deviceData])
 
     const changeDeviceStatus = () => {
         if (deviceStatus == true) {
@@ -54,8 +62,12 @@ const DeviceCard = (props) => {
 
     }
 
-    useEffect(() => {
+    const triggerError = () => {
+        let newErrorCount = errorCount + 1
+        setErrorCount(newErrorCount)
+    }
 
+    useEffect(() => {
         return () => {
             console.log('Unmount Device Card')
             clearInterval(interval.current)
@@ -81,13 +93,18 @@ const DeviceCard = (props) => {
         }
     }, [deviceStatus])
 
-
-
     return (
-        <Paper elevation={2} sx={deviceStatus ? { 'backgroundColor': '#FFF' } : { 'backgroundColor': '#FFCCCB' }}>
+        <Paper elevation={2} 
+        sx={!deviceStatus ? { 'backgroundColor': '#FFCCCB' } : errorCount>0 ? {'backgroundColor':'#FDFD96'} : { 'backgroundColor': '#FFF' }}>
             <CardHeader
                 action={
                     <Fragment>
+                        <IconButton onClick={triggerError} aria-label="settings">
+                            <ReportProblemIcon />
+                            <Typography>
+                                {errorCount}
+                            </Typography>
+                        </IconButton>
                         {deviceStatus ? (
                             <IconButton onClick={changeDeviceStatus} aria-label="settings">
                                 <PauseIcon />
@@ -97,6 +114,8 @@ const DeviceCard = (props) => {
                                 <PlayArrowIcon />
                             </IconButton>
                         }
+
+                     
                         <IconButton aria-label="settings">
                             <DeleteIcon />
                         </IconButton>
@@ -113,6 +132,11 @@ const DeviceCard = (props) => {
                     <Grid xs={12}>
                         <Typography variant="body2">
                             Reading Epoch : {props.device.delay} Second(s)
+                        </Typography>
+                    </Grid>
+                    <Grid xs={12}>
+                        <Typography variant="body2">
+                            Endpoint : {props.device.endpoint}
                         </Typography>
                     </Grid>
                     {Object.entries(props.device.meta_data).map(row => (

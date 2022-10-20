@@ -40,10 +40,10 @@ app.add_middleware(
 
 device_reading_queue = queue.Queue()
 
-device_starter_1 = create_dummy_device(delay=5, queue=device_reading_queue, endpoint_id=2)
-device_starter_2 = create_dummy_device(delay=5, queue=device_reading_queue, endpoint_id=1)
+# device_starter_1 = create_dummy_device(delay=5, queue=device_reading_queue, endpoint_id=2)
+# device_starter_2 = create_dummy_device(delay=5, queue=device_reading_queue, endpoint_id=1)
 
-device_sim = DeviceRunner([device_starter_1,device_starter_2], device_reading_queue=device_reading_queue)
+device_sim = DeviceRunner([], device_reading_queue=device_reading_queue)
 
 
 null_endpoint = NullEndpointConfig()

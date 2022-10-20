@@ -1,11 +1,13 @@
 # iot-device-simulator-backend
 
-currently in development
+Currently in early development
 
 backend start
+
 uvicorn app.proxy:app --reload  
 
 frontend start
+
 npm start
 
 TODO

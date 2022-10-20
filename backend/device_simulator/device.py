@@ -41,6 +41,7 @@ class Device():
         return {
             "device_id": self.device_id,
             "delay": self.delay,
+            'endpoint': self.endpoint_id,
             "meta_data": self.meta_data,
             "attributes": [{'name': k, 'model':v.get_info()} for k,v in self.attributes.items()],
             'running': self.running
@@ -66,7 +67,7 @@ class Device():
         while self.running==True:
             for attribute_name, generator in self.attributes.items():
                 time_stamp = calendar.timegm(datetime.now().timetuple())
-                value = {'time':datetime.now(), "unixtime":time_stamp, 'value':round(generator.generate_value()[0],2), "endpoint_id":self.endpoint_id}
+                value = {'device_id':self.device_id, 'attribute':attribute_name, 'time':datetime.now(), "unixtime":time_stamp, 'value':round(generator.generate_value()[0],2), "endpoint_id":self.endpoint_id}
                 self.attributes_history[attribute_name].append(value)
                 self.device_reading_queue.put(value)
             await asyncio.sleep(self.delay)

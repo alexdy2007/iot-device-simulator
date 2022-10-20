@@ -16,8 +16,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import IconButton from '@mui/material/IconButton'
 import DeleteIcon from "@mui/icons-material/Delete";
-import RefreshIcon from "@mui/icons-material/Refresh";
-
+import SaveIcon from '@mui/icons-material/Save';
 
 
 const DevicePage = () => {
@@ -46,6 +45,12 @@ const DevicePage = () => {
         })
     }
 
+    const saveConfig = () => {
+        let msg = 'Save Config, Not Yet Implemented'
+        setSnackbar({...snackbar, message:msg, severity:"error", open:true})
+
+    }
+
     useEffect(() => {
         getDeviceMetaDataCallback()
     }, []);
@@ -57,8 +62,8 @@ const DevicePage = () => {
                     <IconButton sx={{'& svg': {fontSize: 30}}}  onClick={deleteAllDevicesCall} aria-label="delete">
                         <DeleteIcon /> All
                     </IconButton>
-                    <IconButton sx={{'& svg': {fontSize: 30}}}  onClick={getDeviceMetaDataCallback} aria-label="refresh">
-                        <RefreshIcon />
+                    <IconButton  sx={{'& svg': {fontSize: 30}}}  onClick={saveConfig} aria-label="refresh">
+                        <SaveIcon/>
                     </IconButton>
                 </Grid>              
                 <Grid xs={11}>
@@ -83,7 +88,7 @@ const DevicePage = () => {
 
                 {deviceMetaData.map((metadata, index) => (
                     <Grid key={index} xs={6} md={4}>
-                        <DeviceCard key={metadata.device_id.toString()} device={metadata}>
+                        <DeviceCard key={metadata.device_id} device={metadata}>
                         </DeviceCard>
                     </Grid>
                 )

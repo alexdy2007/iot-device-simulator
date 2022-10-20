@@ -38,11 +38,12 @@ class EventhubConfig(EndPoint):
 
                 event_data_batch = await self.device_client.create_batch()
                 # Add events to the batch.
+                print(len(messages))
                 for message in messages:
                     message['time'] = message['time'].isoformat()
+                    print(message)
                     json_message = json.dumps(message)
                     event_data_batch.add(EventData(json_message))
-                
                 # Send the batch of events to the event hub.
                 await self.device_client.send_batch(event_data_batch)
         except Exception as e:
@@ -56,7 +57,7 @@ class EventhubConfig(EndPoint):
         while self.running==True:
             messages = [self.messages_to_send.pop() for _ in range(40) if self.messages_to_send]
             if len(messages)!=0:
-                await self.send(self.messages_to_send)
+                await self.send(messages)
                 self.messages_to_send = []
             await asyncio.sleep(self.delay)
 

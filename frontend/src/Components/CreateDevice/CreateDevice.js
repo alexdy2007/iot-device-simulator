@@ -12,7 +12,12 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import Box from "@mui/material/Box";
 import Grid from '@mui/material/Unstable_Grid2';
 
+import Accordion from '@mui/material/Accordion';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import AccordionDetails from '@mui/material/AccordionDetails';
 import Typography from '@mui/material/Typography';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+
 import FormHelperText from '@mui/material/FormHelperText';
 
 import { DISTRIBUTIONS } from '../../Constants/distributions';
@@ -263,7 +268,7 @@ const CreateDevice = (props) => {
                         </Grid>
                         <Grid xs={10}>
                             <Select
-                                sx={{ minWidth: '70%', marginTop: '2%', marginLeft: '4%' }}
+                                sx={{ minWidth: '40%', maxWidth: '77%',  marginLeft: '4%' }}
                                 size="small"
                                 labelId="Endpoint"
                                 id={"Endpoint"}
@@ -460,7 +465,23 @@ const CreateDevice = (props) => {
 
                 <Grid xs={12}>
                     <Grid container>
-                        <Grid xs={10}>
+                        <Grid xs={9}>
+                            <Accordion elevation={0}>
+                                <AccordionSummary
+                                aria-controls="panel1a-content"
+                                id="panel1a-header"
+                                >
+                                <Typography sx={{color:"#1978D2"}}>Advanced Options</Typography>
+                                <ExpandMoreIcon />
+                                </AccordionSummary>
+                                <AccordionDetails>
+                                <Typography>
+                                    NOT IMPLEMENTED OPTIONS
+                                </Typography>
+                                </AccordionDetails>
+                            </Accordion>
+                        </Grid>
+                        <Grid xs={1}>
                         </Grid>
                         <Grid xs={2}>
                             <Button onClick={createDevices} sx={{ marginRight: '10px' }} variant="contained">
