@@ -43,11 +43,13 @@ device_reading_queue = queue.Queue()
 # device_starter_1 = create_dummy_device(delay=5, queue=device_reading_queue, endpoint_id=2)
 # device_starter_2 = create_dummy_device(delay=5, queue=device_reading_queue, endpoint_id=1)
 
-device_sim = DeviceRunner([], device_reading_queue=device_reading_queue)
+device_sim = DeviceRunner([])
 
+
+connection_string_eventhub='Endpoint=sb://iot-event-hub-demo.servicebus.windows.net/;SharedAccessKeyName=iotdemodb;SharedAccessKey=y5PF0YNgHLn4lP9aL89+i8MEbkqMXioug+AEhGFKix4='
 
 null_endpoint = NullEndpointConfig()
-eventhub_endpoint = EventhubConfig(name='EventHubTest', connection_string='Endpoint=sb://device-sim-tester-1.servicebus.windows.net/;SharedAccessKeyName=sendtestmessage;SharedAccessKey=KPO+9RRL1Ht8jyKETVXKZzAorHIEzi6aX5yoO1A3l8g=', eventhub_name='test_eventhub')
+eventhub_endpoint = EventhubConfig(name='EventHubTest', connection_string=connection_string_eventhub, eventhub_name='test_eventhub')
 
 endpoint_runner = EndpointRunner([null_endpoint, eventhub_endpoint], device_reading_queue)
 

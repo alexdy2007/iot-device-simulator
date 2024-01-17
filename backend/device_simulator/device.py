@@ -69,7 +69,8 @@ class Device():
                 time_stamp = calendar.timegm(datetime.now().timetuple())
                 value = {'device_id':self.device_id, 'attribute':attribute_name, 'time':datetime.now(), "unixtime":time_stamp, 'value':round(generator.generate_value()[0],2), "endpoint_id":self.endpoint_id}
                 self.attributes_history[attribute_name].append(value)
-                self.device_reading_queue.put(value)
+                if self.device_reading_queue!=None:
+                    self.device_reading_queue.put(value)
             await asyncio.sleep(self.delay)
 
     def stop(self):

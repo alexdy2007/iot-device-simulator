@@ -8,12 +8,11 @@ from queue import Queue
 
 class DeviceRunner(threading.Thread):
 
-    def __init__(self, device_list:List[Device], device_reading_queue:Queue):
+    def __init__(self, device_list:List[Device]):
 
         super().__init__()
 
         self.setDaemon(True)
-        self.device_reading_queue=device_reading_queue
         self.logger = self.create_logger()
         self._devices = {d.device_id:{'task': None, 'device':d} for d in device_list}
         self.loop = asyncio.new_event_loop()

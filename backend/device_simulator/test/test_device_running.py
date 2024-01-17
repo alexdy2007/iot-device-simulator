@@ -161,6 +161,3 @@ def test_add_new_device():
     assert time_diff.seconds > 0, "assert new reading occured after add date"
 
     dr.stop_runner()
-
-
-
