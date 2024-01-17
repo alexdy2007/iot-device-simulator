@@ -46,7 +46,7 @@ device_reading_queue = queue.Queue()
 device_sim = DeviceRunner([])
 
 
-connection_string_eventhub='Endpoint=sb://iot-event-hub-demo.servicebus.windows.net/;SharedAccessKeyName=iotdemodb;SharedAccessKey=y5PF0YNgHLn4lP9aL89+i8MEbkqMXioug+AEhGFKix4='
+connection_string_eventhub=
 
 null_endpoint = NullEndpointConfig()
 eventhub_endpoint = EventhubConfig(name='EventHubTest', connection_string=connection_string_eventhub, eventhub_name='test_eventhub')
