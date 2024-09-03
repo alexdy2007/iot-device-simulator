@@ -1,5 +1,9 @@
 
-const BASE_URL = 'http://' + window.location.hostname + ':8000/devices'
+let BASE_URL = 'https://' + window.location.hostname + '/devices'
+if (window.location.hostname === 'localhost') {
+    BASE_URL = 'https://' + window.location.hostname + ':8000/devices'
+}
+
 
 export const getDevicesMetaData = async() => {
     return fetch(BASE_URL).then( (res) => res.json() );

@@ -156,6 +156,20 @@ def delete_all_devices():
     
     return response 
 
+@app.delete("/devices/{device_id}", status_code=200)
+def delete_device(device_id:int):
+    device_sim.remove_device(device_id)
+    headers = {
+        "Access-Control-Allow-Private-Network": "true"
+    }
+   
+    response = JSONResponse(
+        headers=headers,
+        content={"detail":'All Devices Deleted'}
+    )
+    
+    return response 
+
 
 @app.get("/devices/readings/{device_id}")
 def get_device_reading(device_id:int, n_historic:int=10):
@@ -264,4 +278,13 @@ async def create_endpont(endpoint: EventHubModel):
     return response
     
 target_dir = "static"
+
+import os
+print(os.getcwd())
+
+if os.getcwd() == '/Users/alex.young/Projects/iot-device-simulator':
+    target_dir = "backend/static"
+else:
+    target_dir = "static"
+
 app.mount("/", StaticFiles(directory=target_dir, html=True), name="site")

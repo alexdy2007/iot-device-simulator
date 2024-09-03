@@ -91,11 +91,14 @@ class DeviceRunner(threading.Thread):
     def remove_device(self, device_id):
         self.logger.debug(f'Removing device: {device_id}')
         self.stop_device(device_id)
-        return self._devices.pop(device_id)
+        device_obj = self._devices.pop(device_id)
+        del device_obj
 
     def remove_all_devices(self):
+        self.logger.debug(f'Removing all devices')
+
         for device_id in self._devices.keys():
-            self.stop_device(device_id)
+            self.remove_device(device_id)
         self._devices = {}
         return True
 

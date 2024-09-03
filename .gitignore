@@ -167,3 +167,5 @@ yarn-error.log*
 .databricks
 
 backend/static/
+
+*.pem
