@@ -8,6 +8,9 @@ scipy = "*"
 pytest = "*"
 fastapi = "*"
 uvicorn = {extras = ["standard"], version = "*"}
+azure-eventhub = "*"
+azure-identity = "*"
+pydantic = "*"
 
 [dev-packages]
 pytest = "*"

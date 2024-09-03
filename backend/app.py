@@ -2,9 +2,10 @@ import logging
 
 from typing import Union
 from fastapi import FastAPI, HTTPException, Response
+from fastapi.staticfiles import StaticFiles
 from device_simulator.device_runner import DeviceRunner
 from device_simulator.device import Device
-from app.models.device import DeviceCreate
+from models.device import DeviceCreate
 
 from device_simulator.test.stubs import create_dummy_device
 
@@ -20,23 +21,16 @@ from endpoints.endpoint_runner import EndpointRunner
 from endpoints.eventhub import EventhubConfig
 from endpoints.nullendpoint import NullEndpointConfig
 
-from app.models.endpoints import EventHubModel
+from models.endpoints import EventHubModel
+
+from contextlib import asynccontextmanager
+
 
 import queue
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-
-app = FastAPI()
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 device_reading_queue = queue.Queue()
 
@@ -46,28 +40,36 @@ device_reading_queue = queue.Queue()
 device_sim = DeviceRunner([])
 
 
-connection_string_eventhub=
+connection_string_eventhub='Endpoint=sb://iot-event-hub-demo.servicebus.windows.net/;SharedAccessKeyName=iotdemodb;SharedAccessKey='
 
 null_endpoint = NullEndpointConfig()
-eventhub_endpoint = EventhubConfig(name='EventHubTest', connection_string=connection_string_eventhub, eventhub_name='test_eventhub')
+# eventhub_endpoint = EventhubConfig(name='EventHubTest', connection_string=connection_string_eventhub, eventhub_name='test_eventhub')
 
-endpoint_runner = EndpointRunner([null_endpoint, eventhub_endpoint], device_reading_queue)
+endpoint_runner = EndpointRunner([null_endpoint], device_reading_queue)
 
-@app.on_event("startup")
-async def startup_event():
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     device_sim.start_all_devices()
     endpoint_runner.start_collect_messages()
     endpoint_runner.start_all_endpoints()
-
-@app.on_event("shutdown")
-def shutdown_event():
+    yield
     if device_sim != None:
         device_sim.stop_runner()
 
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
+
+
+app = FastAPI(lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
 
 @app.post("/devices", status_code=201)
 async def create_device(device: DeviceCreate):
@@ -261,3 +263,5 @@ async def create_endpont(endpoint: EventHubModel):
     )
     return response
     
+target_dir = "static"
+app.mount("/", StaticFiles(directory=target_dir, html=True), name="site")

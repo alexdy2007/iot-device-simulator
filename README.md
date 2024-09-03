@@ -4,7 +4,7 @@ Currently in early development
 
 backend start
 
-uvicorn app.proxy:app --reload  
+uvicorn app.app:app --reload  
 
 frontend start
 

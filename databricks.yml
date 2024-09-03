@@ -1,0 +1,23 @@
+# This is a Databricks asset bundle definition for iot-device-simulator.
+# The file was generated automatically by the Databricks extension. 
+# It's based on the configuration located in `.databricks/project.json`.
+# If you don't want this file to be created automatically, remove the `.databricks/project.json`.
+# See https://docs.databricks.com/dev-tools/bundles/index.html for documentation.
+
+bundle:
+  name: iot-device-simulator
+
+targets:
+  dev:
+    mode: development
+    default: true
+    compute_id: 0709-132523-cnhxf2p6
+    workspace:
+      host: https://e2-demo-field-eng.cloud.databricks.com
+      root_path: /Users/alex.young@databricks.com/.ide/iot-device-simulator-dc5e7ec6
+
+  ## Optionally, there could be 'staging' or 'prod' targets here.
+  #
+  # prod:
+  #   workspace:
+  #     host: https://e2-demo-field-eng.cloud.databricks.com
