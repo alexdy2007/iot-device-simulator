@@ -19,10 +19,11 @@ import {SnackbarContext} from "../../Contexts/SnackBarAlertContext";
 
 const CreateEndpointDialog = (props) => {
 
-    const openCreateEndpoint = props.openCreateEndpoint
-    const setOpenCreateEndpoint = props.setOpenCreateEndpoint
+    const openCreateEndpoint = props.openCreateEndpoint;
+    const setOpenCreateEndpoint = props.setOpenCreateEndpoint;
+    const getEndpointsCall= props.getEndpointsCall;
 
-    const defaultEndpoint = {'name':'', 'connection_string':'', 'eventhub_name':'', 'endpoint_type':'EventHub'}
+    const defaultEndpoint = {'name':'', 'connection_string':'', 'eventhub_name':'', 'endpoint_type':'Volume', 'volume_path':'/volume'}
 
     const [endpoint, setEndpoint] = useState(defaultEndpoint);
     const {snackbar, setSnackbar} = useContext(SnackbarContext);
@@ -55,12 +56,13 @@ const CreateEndpointDialog = (props) => {
             let msg = `Failed in creating endpoint, Error Code ${response.status}, msg: ${response.statusText}`
             setSnackbar({...snackbar, message:msg, severity:"error", open:true})
             return 
+        }else{
+            getEndpointsCall()
+            let msg = `Endpoint ${endpoint.name} Created`
+            setSnackbar({...snackbar, message:msg, severity:"success", open:true})    
+            setEndpoint(defaultEndpoint)
+            setOpenCreateEndpoint(false)
         }
-        props.getEndpointsCall()
-        let msg = `Endpoint ${endpoint.name} Created`
-        setSnackbar({...snackbar, message:msg, severity:"success", open:true})    
-        setEndpoint(defaultEndpoint)
-        setOpenCreateEndpoint(false)
     
     };
 
@@ -73,6 +75,11 @@ const CreateEndpointDialog = (props) => {
         if(endpoint.endpoint_type==='EventHub'){
             if(endpoint.connection_string===''){
                 errors.push('Connection String can not be blank')
+            }
+        }
+        if(endpoint.endpoint_type==='Volume'){
+            if(endpoint.volume_path===''){
+                errors.push('Volume Path must not be blank')
             }
         }
 
@@ -98,7 +105,7 @@ const CreateEndpointDialog = (props) => {
                             onChange={(e) => handleEndpointChange('endpoint_type', e)}
                         >
                             <MenuItem value={'EventHub'}>EventHub</MenuItem>
-                            <MenuItem value={'Kafka'}>Kafka</MenuItem>
+                            <MenuItem value={'Volume'}>Volume</MenuItem>
 
                         </Select>
                     </Grid>
@@ -115,7 +122,7 @@ const CreateEndpointDialog = (props) => {
                         />
                     </Grid>
 
-                    {endpoint.endpoint_type==='EventHub' ?
+                    {endpoint.endpoint_type==='EventHub' ? (
                         <Fragment>
                             <Grid xs={12}>
                                 <TextField
@@ -143,7 +150,21 @@ const CreateEndpointDialog = (props) => {
                             </Grid>
                         </Fragment>
                         
-                    :
+                    ) : null}
+                    {endpoint.endpoint_type==='Volume' ? (
+                    <Grid xs={12}>
+                        <TextField
+                            autoFocus
+                            margin="dense"
+                            id="name"
+                            value={endpoint.volumePath}
+                            onChange={(e) => handleEndpointChange('volume_path', e)}
+                            label="Volume Path e.g catalog/schema/volume"
+                            fullWidth
+                            variant="standard"
+                        />
+                    </Grid>
+                    ):
                     <Grid xs={12}>
                         <div><b>NOT IMPLEMENTED</b></div>
                     </Grid>

@@ -1,6 +1,14 @@
-let BASE_URL = 'https://' + window.location.hostname + '/devices'
-if (window.location.hostname === 'localhost') {
-    BASE_URL = 'https://' + window.location.hostname + ':8000/devices'
+
+const ENV = process.env.NODE_ENV;
+const PROD_URL = process.env.REACT_APP_PROD_URL;
+const DEV_URL = process.env.REACT_APP_DEV_URL;
+
+let BASE_URL = ''
+
+if (ENV === 'production') {
+    BASE_URL = 'https://' + window.location.hostname + PROD_URL + '/endpoints';
+} else {
+    BASE_URL = 'https://' + window.location.hostname + DEV_URL + '/endpoints';
 }
 
 export const createEndpoint = async(endpointData) => {

@@ -36,7 +36,7 @@ const DeviceChartHolder = (props) => {
 
             let metric = metrics[i]
 
-            let metric_attribute = deviceMeta.attributes.filter(device => device.name == metric)
+            let metric_attribute = deviceMeta.attributes.filter(device => device.name === metric)
 
             Components.push(
                 {

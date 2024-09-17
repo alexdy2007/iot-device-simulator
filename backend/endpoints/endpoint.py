@@ -14,13 +14,14 @@ class EndPoint():
 
     id_gen = gen_id()
 
-    def __init__(self, name, delay=1):
+    def __init__(self, name:str, delay=1):
         self.id = next(self.id_gen)
         self.name = name
         self.messages_to_send = deque()
         self.delay=delay
         self.logger = self.create_logger()
         self.running = False
+        self.logger.debug(f'endpoint {self.id} created of type {self.__class__.__name__}')
     
     def create_logger(self):
         h1 = logging.StreamHandler(sys.stdout)

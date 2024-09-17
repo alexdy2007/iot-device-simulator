@@ -1,7 +1,7 @@
 from endpoints.endpoint import EndPoint
 import asyncio
 
-class NullEndpointConfig(EndPoint):
+class NullEndpoint(EndPoint):
 
     def __init__(self) -> None:
         super().__init__(name='NullEndpointDefault')

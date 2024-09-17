@@ -5,7 +5,7 @@ import moment from 'moment';
 
 const DeviceLineChart = (props) => {
     let deviceData = props.deviceData
-    let deviceMetric = props.deviceMetric
+    // let deviceMetric = props.deviceMetric
 
     return (
         <Fragment>

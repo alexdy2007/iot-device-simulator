@@ -9,3 +9,8 @@ class EndpointBase(BaseModel):
 class EventHubModel(EndpointBase):
     connection_string:str
     eventhub_name:str
+
+class VolumeModel(EndpointBase):
+    volume_path:str
+    connection_string:str
+    eventhub_name:str

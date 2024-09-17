@@ -8,3 +8,5 @@ command: [
 env:
   - name: "PATH"
     value: ""
+  - name: "production"
+    value: "true"

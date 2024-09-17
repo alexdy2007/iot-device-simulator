@@ -1,7 +1,8 @@
 from scipy.stats import beta, gamma, norm
 from abc import ABC, abstractmethod
 from typing import List, Dict, Any
-
+import random
+import numpy as np
 
 class Distribution(ABC):
 
@@ -74,9 +75,48 @@ class NormalDist(Distribution):
         random_gen = norm.rvs(loc=self.mean, scale=self.sd, size=100)    
         return random_gen
 
+
+class CyclicalNormalErrorDist(Distribution):
+
+    def __init__(self,mean=0.1, sd=0.1, readings_per_cycle=10, scale=10):
+        self.mean = mean
+        self.sd = sd
+        self.scale = scale
+        self.readings_per_cycle = readings_per_cycle
+        self.cycle_num = 0
+        self.cycle_inc = 360/readings_per_cycle
+        self.cycle_progress = 0
+
+    def get_info(self):
+        return {
+            "dist_type":'CyclicalNormalErrorDist',
+            'mean': self.mean,
+            'sd': self.sd,
+            'readings_per_cycle':self.readings_per_cycle,
+            'str_format': self.__str__()
+        }
+
+    def __str__(self):
+        return f"NormalDist({self.mean}, {self.sd})"
+
+    def generate_value(self) -> List[float]:
+        noise = random.normalvariate(self.mean,self.sd)
+        if random.random()>=0.5:
+            noise = noise*-1
+        value = np.sin(np.deg2rad(self.cycle_progress)) + 1
+        self.cycle_num = self.cycle_num + 1
+        self.cycle_progress = (self.cycle_progress + self.cycle_inc)%360
+        return [float(value+noise)*self.scale]
+
+    def generate_values(self, n:int=100) -> List[float]:
+        random_gen = [self.generate_value() for x in range(n)]
+        return random_gen
+
 if __name__ == "__main__":
     norm_dist = NormalDist(10,1)
     print(norm_dist.generate_value())
     beta_dist = BetaDist(1,1,10)
     print(beta_dist.generate_value())
+    cyc_dist = CyclicalNormalErrorDist()
+    print(cyc_dist.generate_value())
 

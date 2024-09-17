@@ -46,7 +46,7 @@ const DeviceCard = (props) => {
     },[deviceData])
 
     const changeDeviceStatus = () => {
-        if (deviceStatus == true) {
+        if (deviceStatus === true) {
             pauseDevice(props.device.device_id).then(
                 setDeviceStatus(!deviceStatus)
             ).catch((error) =>

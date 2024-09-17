@@ -1,4 +1,6 @@
 import logging
+import os
+import io
 
 from typing import Union
 from fastapi import FastAPI, HTTPException, Response
@@ -15,15 +17,23 @@ from fastapi.logger import logger as fastapi_logger
 
 from fastapi.middleware.cors import CORSMiddleware
 
+from databricks import sdk
+from databricks.sdk import core
+
 from device_simulator.distributions import BetaDist, NormalDist
 
 from endpoints.endpoint_runner import EndpointRunner
-from endpoints.eventhub import EventhubConfig
-from endpoints.nullendpoint import NullEndpointConfig
+from endpoints.eventhub import EventhubEndpoint
+from endpoints.nullendpoint import NullEndpoint
+from endpoints.volume import VolumeEndpoint
 
-from models.endpoints import EventHubModel
+
+
+from models.endpoints import EventHubModel, VolumeModel
 
 from contextlib import asynccontextmanager
+
+import csv
 
 
 import queue
@@ -32,20 +42,22 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 
+workspace = sdk.WorkspaceClient()
+
 device_reading_queue = queue.Queue()
 
-# device_starter_1 = create_dummy_device(delay=5, queue=device_reading_queue, endpoint_id=2)
+device_starter_1 = create_dummy_device(delay=5, queue=device_reading_queue, endpoint_id=1)
 # device_starter_2 = create_dummy_device(delay=5, queue=device_reading_queue, endpoint_id=1)
 
-device_sim = DeviceRunner([])
+device_sim = DeviceRunner([device_starter_1])
 
+# connection_string_eventhub='Endpoint=sb://iot-event-hub-demo.servicebus.windows.net/;SharedAccessKeyName=iotdemodb;SharedAccessKey='
 
-connection_string_eventhub='Endpoint=sb://iot-event-hub-demo.servicebus.windows.net/;SharedAccessKeyName=iotdemodb;SharedAccessKey='
-
-null_endpoint = NullEndpointConfig()
+null_endpoint = NullEndpoint()
+volume_endpoint_field_eng = VolumeEndpoint(name='VolumeFieldEng', volume_path='/Volumes/alex_young/device_demo/raw_data', workspace_client=workspace)
 # eventhub_endpoint = EventhubConfig(name='EventHubTest', connection_string=connection_string_eventhub, eventhub_name='test_eventhub')
 
-endpoint_runner = EndpointRunner([null_endpoint], device_reading_queue)
+endpoint_runner = EndpointRunner([null_endpoint,volume_endpoint_field_eng], device_reading_queue)
 
 
 @asynccontextmanager
@@ -224,7 +236,7 @@ def start_device(device_id:int):
 
     return response
 
-@app.get("/endpoints/")
+@app.get("/endpoints")
 def get_all_endpoints():
 
     response_data = [x.json_format() for x in endpoint_runner.get_all_endpoints()]
@@ -255,11 +267,13 @@ def get_endpoint(endpoint_id:int):
 
     return response
 
-@app.post("/endpoints/", status_code=201)
-async def create_endpont(endpoint: EventHubModel):
+@app.post("/endpoints", status_code=201)
+async def create_endpont(endpoint: Union[EventHubModel,VolumeModel]):
 
     if endpoint.endpoint_type=='EventHub':
-        endpoint_model = EventhubConfig(name=endpoint.name, connection_string=endpoint.connection_string, eventhub_name=endpoint.eventhub_name)
+        endpoint_model = EventhubEndpoint(name=endpoint.name, connection_string=endpoint.connection_string, eventhub_name=endpoint.eventhub_name)
+    elif endpoint.endpoint_type=='Volume':
+        endpoint_model = VolumeEndpoint(name=endpoint.name, volume_path=endpoint.volume_path, workspace_client=workspace)
     else:
         detail = f"Endpoint type {endpoint.endpoint_type} not reconised"
         return HTTPException(status_code=404, detail=detail)

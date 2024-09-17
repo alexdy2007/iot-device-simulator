@@ -7,9 +7,9 @@ import datetime
 import logging
 import json
 
-class EventhubConfig(EndPoint):
+class EventhubEndpoint(EndPoint):
 
-    def __init__(self, name:str, connection_string:str, eventhub_name:str, delay=1) -> None:
+    def __init__(self, name:str, connection_string:str, eventhub_name:str, delay:int=1) -> None:
         self.connection_string = connection_string
         self.eventhub_name = eventhub_name
         self.device_client = self.get_device_clint()
