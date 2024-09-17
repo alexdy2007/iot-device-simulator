@@ -10,9 +10,19 @@ import io
 from databricks.sdk import WorkspaceClient
 import uuid
 
+from datetime import date, datetime
+
+def json_serial(obj):
+    """JSON serializer for objects not serializable by default json code"""
+
+    if isinstance(obj, (datetime, date)):
+        return obj.isoformat()
+    raise TypeError ("Type %s not serializable" % type(obj))
+
+
 class VolumeEndpoint(EndPoint):
 
-    def __init__(self, name:str, volume_path:str, workspace_client:WorkspaceClient=None, delay=20) -> None:
+    def __init__(self, name:str, volume_path:str, workspace_client:WorkspaceClient=None, delay=10) -> None:
         self.name = name
         self.volume_path = volume_path
         self.workspace_client = workspace_client
@@ -28,18 +38,21 @@ class VolumeEndpoint(EndPoint):
 
 
     async def send(self, messages:List[Dict[str,Any]], file_name:str=None):
-        string_buffer = io.StringIO()
 
         if file_name is None:
             file_name = str(uuid.uuid4()) + ".json"
+        
 
-        for message in messages:
-            message['time'] = message['time'].isoformat()
-            print(message)
-            json.dump(message, string_buffer)
-
-        byte_buffer = io.BytesIO(string_buffer.getvalue().encode('utf-8'))
-        self.workspace_client.files.upload(f"{self.volume_path}/{file_name}", byte_buffer, overwrite=True)
+        try:
+            self.logger.info('HERE')
+            messages_json = json.dumps(messages, default=json_serial)
+            messages_json_bytes = messages_json.encode('utf-8')
+            self.logger.info(f'sending messages to {self.volume_path}/{file_name}')
+            byte_buffer = io.BytesIO(messages_json_bytes)
+            self.workspace_client.files.upload(f"{self.volume_path}/{file_name}", byte_buffer, overwrite=True)
+            self.logger.info(f'sent messages to {self.volume_path}/{file_name}')
+        except Exception as e:
+            self.logger.error(f'error sending messages to {self.volume_path}/{file_name} {e}')
 
 
     async def start(self):
@@ -47,6 +60,7 @@ class VolumeEndpoint(EndPoint):
         self.running=True
         while self.running==True:
             messages = [self.messages_to_send.pop() for _ in range(40) if self.messages_to_send]
+            self.logger.info(f'length of {len(messages)} messages')
             if len(messages)!=0:
                 await self.send(messages)
                 self.messages_to_send = []
