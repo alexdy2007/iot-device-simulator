@@ -23,7 +23,7 @@ const CreateEndpointDialog = (props) => {
     const setOpenCreateEndpoint = props.setOpenCreateEndpoint;
     const getEndpointsCall= props.getEndpointsCall;
 
-    const defaultEndpoint = {'name':'', 'connection_string':'', 'eventhub_name':'', 'endpoint_type':'Volume', 'volume_path':'/volume'}
+    const defaultEndpoint = {'name':'', 'connection_string':'', 'eventhub_name':'', 'endpoint_type':'Volume', 'volume_path':'/volume', 'delay':10}
 
     const [endpoint, setEndpoint] = useState(defaultEndpoint);
     const {snackbar, setSnackbar} = useContext(SnackbarContext);
@@ -160,6 +160,17 @@ const CreateEndpointDialog = (props) => {
                             value={endpoint.volumePath}
                             onChange={(e) => handleEndpointChange('volume_path', e)}
                             label="Volume Path e.g catalog/schema/volume"
+                            fullWidth
+                            variant="standard"
+                        />
+                        <TextField
+                            autoFocus
+                            type="number"
+                            margin="dense"
+                            id="name"
+                            value={endpoint.delay}
+                            onChange={(e) => handleEndpointChange('delay', e)}
+                            label="Enforce Delay (in seconds) writing to volume"
                             fullWidth
                             variant="standard"
                         />

@@ -273,7 +273,10 @@ async def create_endpont(endpoint: Union[EventHubModel,VolumeModel]):
     if endpoint.endpoint_type=='EventHub':
         endpoint_model = EventhubEndpoint(name=endpoint.name, connection_string=endpoint.connection_string, eventhub_name=endpoint.eventhub_name)
     elif endpoint.endpoint_type=='Volume':
-        endpoint_model = VolumeEndpoint(name=endpoint.name, volume_path=endpoint.volume_path, workspace_client=workspace)
+        if endpoint.delay is not None:
+            endpoint_model = VolumeEndpoint(name=endpoint.name, volume_path=endpoint.volume_path, workspace_client=workspace, delay=endpoint.delay)
+        else:
+            endpoint_model = VolumeEndpoint(name=endpoint.name, volume_path=endpoint.volume_path, workspace_client=workspace)
     else:
         detail = f"Endpoint type {endpoint.endpoint_type} not reconised"
         return HTTPException(status_code=404, detail=detail)

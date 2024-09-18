@@ -44,13 +44,10 @@ class VolumeEndpoint(EndPoint):
         
 
         try:
-            self.logger.info('HERE')
             messages_json = json.dumps(messages, default=json_serial)
             messages_json_bytes = messages_json.encode('utf-8')
-            self.logger.info(f'sending messages to {self.volume_path}/{file_name}')
             byte_buffer = io.BytesIO(messages_json_bytes)
             self.workspace_client.files.upload(f"{self.volume_path}/{file_name}", byte_buffer, overwrite=True)
-            self.logger.info(f'sent messages to {self.volume_path}/{file_name}')
         except Exception as e:
             self.logger.error(f'error sending messages to {self.volume_path}/{file_name} {e}')
 

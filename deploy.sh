@@ -34,7 +34,7 @@ if [ -d backend ] && [ -d frontend ]; then
     cd backend
     mkdir -p build
     # Exclude all hidden files and app_prod.py
-    find . -mindepth 1 -maxdepth 1 -not -name '.*' -not -name "*.pyc" -not -name "*Pipfile*" -not -name "*CACHEDIR*" -not -name "*.json" -not -name "local_conf*" -not -name 'build' -not -name 'cache' -not -name '*__pycache__*' -not -name '*test*' -exec cp -r {} build/ \;
+    find . -mindepth 1 -maxdepth 1 -not -name '.*' -not -name "*.pyc" -not -name "*.pem" -not -name "*Pipfile*" -not -name "*CACHEDIR*" -not -name "*.json" -not -name "local_conf*" -not -name 'build' -not -name 'cache' -not -name '*__pycache__*' -not -name '*test*' -exec cp -r {} build/ \;
     databricks workspace import-dir build "$APP_FOLDER_IN_WORKSPACE" --overwrite
     rm -rf build
   ) &
