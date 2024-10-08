@@ -31,7 +31,7 @@ Lauch .json file example
 
 backend start locally (Change certs as required)
 
-uvicorn app.app:app --reload --ssl-keyfile="./localhost+2-key.pem" --ssl-certfile="localhost+2.pem"
+uvicorn app:app --reload --ssl-keyfile="./localhost+2-key.pem" --ssl-certfile="localhost+2.pem"
 
 frontend start
 

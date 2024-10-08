@@ -18,6 +18,9 @@ if [$local = False]; then
   echo "Deploying to Databricks"
 fi
 
+rm -r build
+mkdir build
+
 # Frontend build and import. Swap in your /frontend folder name if it's different here. 
 if [ -d backend ] && [ -d frontend ]; then 
 
@@ -25,8 +28,7 @@ if [ -d backend ] && [ -d frontend ]; then
   (
     cd frontend
     npm run build
-    databricks workspace delete --recursive $APP_FOLDER_IN_WORKSPACE/static
-    databricks workspace import-dir build "$APP_FOLDER_IN_WORKSPACE/static" --overwrite
+    cp -r build ../build/static
     
   ) &
   # Backend packaging. Swap in your /backend folder name if it's different here. 
@@ -35,21 +37,9 @@ if [ -d backend ] && [ -d frontend ]; then
     mkdir -p build
     # Exclude all hidden files and app_prod.py
     find . -mindepth 1 -maxdepth 1 -not -name '.*' -not -name "*.pyc" -not -name "*.pem" -not -name "*Pipfile*" -not -name "*CACHEDIR*" -not -name "*.json" -not -name "local_conf*" -not -name 'build' -not -name 'cache' -not -name '*__pycache__*' -not -name '*test*' -exec cp -r {} build/ \;
-    databricks workspace import-dir build "$APP_FOLDER_IN_WORKSPACE" --overwrite
-    rm -rf build
-  ) &
-  # Wait for both background processes to finish
+    cp -r ./build/* ../build/
+    rm -r build
+  ) &  
   wait
-  
-  # Deploy the application
-  if [ $local = False ]; then
-    cp -r ./frontend/build/ ./backend/static
-    databricks apps deploy "$LAKEHOUSE_APP_NAME" "$APP_FOLDER_IN_WORKSPACE"
-    # Print the app page URL -- put your workspace name in the below URL. 
-    echo "Open the app page for details and permission: WORKSPACEURL.com/apps/$LAKEHOUSE_APP_NAME";
-  else
-    cp -r ./frontend/build/ ./backend/static
-    echo "Built Locally"
-  fi
 
 fi

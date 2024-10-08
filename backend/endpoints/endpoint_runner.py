@@ -55,7 +55,7 @@ class EndpointRunner(threading.Thread):
 
     def add_endpoint(self, endpoint:EndPoint):
         self._endpoints[endpoint.id] = {'task': None, 'endpoint':endpoint}
-        # self.start_endpoint(endpoint.id)
+        self.start_endpoint(endpoint.id)
 
     def get_all_endpoints(self) -> List[EndPoint]:
          return [e['endpoint'] for e in self._endpoints.values()]

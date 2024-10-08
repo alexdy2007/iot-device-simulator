@@ -466,12 +466,12 @@ const CreateDevice = (props) => {
                 <Grid xs={12}>
                     <Grid container>
                         <Grid xs={9}>
-                            <Accordion elevation={0}>
+                            <Accordion elevation={0} sx={{border: 0, borderColor: 'primary.white'}}>
                                 <AccordionSummary
                                 aria-controls="panel1a-content"
                                 id="panel1a-header"
                                 >
-                                <Typography sx={{color:"#1978D2"}}>Advanced Options</Typography>
+                                <Typography sx={{color:"#1978D2", }}>Advanced Options</Typography>
                                 <ExpandMoreIcon />
                                 </AccordionSummary>
                                 <AccordionDetails>

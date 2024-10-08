@@ -68,7 +68,7 @@ const DevicePage = () => {
                 </Grid>              
                 <Grid xs={11}>
                     <Accordion expanded={createDevice}
-                        sx={{ ".MuiAccordionSummary-root": { "&:hover": { backgroundColor: '#d3d3d3' } } }}
+                        sx={{ ".MuiAccordionSummary-root": { "&:hover": { backgroundColor: '#d3d3d3' }}, border: 1 }}
                         onChange={createDeviceChange}
                     >
                         <AccordionSummary
@@ -80,7 +80,7 @@ const DevicePage = () => {
                                 <AddCircleIcon />
                                 Create New Devices</Typography>
                         </AccordionSummary>
-                        <AccordionDetails>
+                        <AccordionDetails sx={{borderTop:1}}>
                             <CreateDevice getDeviceMetaDataCallback={getDeviceMetaDataCallback}></CreateDevice>
                         </AccordionDetails>
                     </Accordion>

@@ -13,7 +13,7 @@ __pycache__/
 
 # Distribution / packaging
 .Python
-build/
+
 develop-eggs/
 dist/
 downloads/
@@ -148,7 +148,8 @@ dmypy.json
 /coverage
 
 # production
-/build
+frontend/build
+build/
 
 # misc
 .DS_Store
@@ -164,7 +165,6 @@ yarn-error.log*
 
 .databricks
 
-.databricks
 
 backend/static/
 
