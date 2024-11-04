@@ -45,11 +45,6 @@ const DevicePage = () => {
         })
     }
 
-    const saveConfig = () => {
-        let msg = 'Save Config, Not Yet Implemented'
-        setSnackbar({...snackbar, message:msg, severity:"error", open:true})
-
-    }
 
     useEffect(() => {
         getDeviceMetaDataCallback()
@@ -61,9 +56,6 @@ const DevicePage = () => {
                 <Grid xs={1}>
                     <IconButton sx={{'& svg': {fontSize: 30}}}  onClick={deleteAllDevicesCall} aria-label="delete">
                         <DeleteIcon /> All
-                    </IconButton>
-                    <IconButton  sx={{'& svg': {fontSize: 30}}}  onClick={saveConfig} aria-label="refresh">
-                        <SaveIcon/>
                     </IconButton>
                 </Grid>              
                 <Grid xs={11}>

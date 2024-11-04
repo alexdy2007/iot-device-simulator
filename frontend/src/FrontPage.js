@@ -2,8 +2,10 @@ import './FrontPage.css';
 
 import NavBar from './Components/Navbar/Navbar'
 import DevicePage from './Components/DevicesPage/DevicePage';
+import DeviceDashboard from './Components/Dashboards/DeviceDashboard';
 import { Fragment } from 'react';
 import SnackBarContextProvider from './Contexts/SnackBarAlertContext'
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 
 function FrontPage() {
@@ -11,16 +13,18 @@ function FrontPage() {
 
   return (
     <Fragment>
-      <NavBar></NavBar>
       <div className="body">
-        <SnackBarContextProvider>
-          <DevicePage>
+          <SnackBarContextProvider>
+          <BrowserRouter>
+          <NavBar></NavBar>
 
-          </DevicePage>
+            <Routes>
+                <Route path='/' element={<DevicePage />} />
+                <Route path="dashboard" element={<DeviceDashboard />} />
+            </Routes>
+        </BrowserRouter>
         </SnackBarContextProvider>
-
-       
-      </div>
+    </div>
 
     </Fragment>
   );

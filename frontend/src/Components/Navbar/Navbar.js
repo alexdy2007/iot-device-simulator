@@ -1,29 +1,45 @@
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
+
 import Grid2 from '@mui/material/Unstable_Grid2';
+import {Link, NavLink } from "react-router-dom";
+import MenuItem from '@mui/material/MenuItem'
+import Menu from '@mui/material/Menu';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+
 
 const NavBar = () => {
-    return (<Grid2 xs={12}>
+    return (
         <AppBar position="static">
             <Toolbar>
-                <IconButton
-                    size="large"
-                    edge="start"
-                    color="inherit"
-                    aria-label="menu"
-                    sx={{ mr: 2 }}
-                >
-                    <MenuIcon />
-                </IconButton>
-                <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                    Device Viewer
-                </Typography>
+            <Grid2 container spacing={2}>
+                <Grid2 size={4}>
+                    <Button color="inherit">
+                        <Typography sx={{ color: "#000000"}} variant="h5" component="div">
+                            Device Viewer
+                        </Typography>
+                    </Button>
+                </Grid2>
+                <Grid2 size={2}>
+                    <Link to="/">
+                        <Button color='inherit'>
+                            <Typography variant="h6" sx={{ color: "#FFFFFF"}} component="div">Devices </Typography>
+                        </Button>
+                    </Link>   
+                </Grid2>
+                <Grid2 size={2}>
+                    <Link to="/dashboard">
+                        <Button color="inherit">
+                                <Typography variant="h6" sx={{ color: "#FFFFFF"}} component="div">Dashboard</Typography>
+                        </Button>
+                    </Link>
+                </Grid2>
+
+            </Grid2>
             </Toolbar>
         </AppBar>
-    </Grid2>
     )
 }
 
