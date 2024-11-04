@@ -1,12 +1,13 @@
-# The main pipeline for db_device_pipeline
 resources:
   pipelines:
-    db_device_pipeline_pipeline:
-      name: db_device_pipeline_pipeline
-      target: db_device_pipeline_${bundle.environment}
+    pipeline_device_demo_pipeline:
+      name: device_demo_pipeline
       libraries:
         - notebook:
-            path: ../src/dlt_pipeline.ipynb
-
-      configuration:
-        bundle.sourcePath: /Workspace/${workspace.file_path}/src
+            path: ../src/db_device_pipeline/dlt_pipeline.ipynb
+      schema: device_demo
+      development: true
+      photon: true
+      channel: PREVIEW
+      catalog: alex_young
+      serverless: true
