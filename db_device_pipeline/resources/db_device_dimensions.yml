@@ -1,0 +1,11 @@
+resources:
+  jobs:
+    device_dimension_demo:
+      name: device_dimension_demo
+      tasks:
+        - task_key: device_dimension
+          notebook_task:
+            notebook_path: ../src/dimensions.ipynb
+            source: WORKSPACE
+      queue:
+        enabled: true
