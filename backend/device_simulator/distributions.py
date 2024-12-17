@@ -16,6 +16,10 @@ class Distribution(ABC):
     @abstractmethod
     def generate_value(self, n:int) -> List[float]:        
         return NotImplementedError
+    
+    @abstractmethod
+    def generate_ge_99_pc_value(self) -> List[float]:        
+        return NotImplementedError
 
     @abstractmethod
     def get_info(self) -> Dict[str, Any]:        
@@ -44,6 +48,10 @@ class BetaDist(Distribution):
     def generate_value(self) -> List[float]:
         random_gen = beta.rvs(self.a,self.b,size=1, scale=self.scale)
         return random_gen
+    
+    def generate_ge_99_pc_value(self) -> List[float]:
+        random_gen = beta.ppf(0.99,self.a,self.b, scale=self.scale) + random.random()*self.scale
+        return random_gen
 
     def generate_values(self, n=100) -> List[float]:
         random_gen = beta.rvs(self.a,self.b,size=n, scale=self.scale)
@@ -69,6 +77,10 @@ class NormalDist(Distribution):
 
     def generate_value(self) -> List[float]:
         random_gen = norm.rvs(loc=self.mean, scale=self.sd, size=1)    
+        return random_gen
+    
+    def generate_ge_99_pc_value(self) -> List[float]:
+        random_gen = norm.ppf(0.99,loc=self.mean, scale=self.sd) + random.random()*self.sd
         return random_gen
 
     def generate_values(self, n:int=100) -> List[float]:
@@ -107,6 +119,10 @@ class CyclicalNormalErrorDist(Distribution):
         self.cycle_num = self.cycle_num + 1
         self.cycle_progress = (self.cycle_progress + self.cycle_inc)%360
         return [float(value+noise)*self.scale]
+    
+    def generate_ge_99_pc_value(self) -> List[float]:
+        random_gen = norm.ppf(0.99,loc=self.mean, scale=self.sd) + random.random()*self.sd
+        return random_gen
 
     def generate_values(self, n:int=100) -> List[float]:
         random_gen = [self.generate_value() for x in range(n)]

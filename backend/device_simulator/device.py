@@ -22,13 +22,15 @@ class Device():
             yield cls.count
 
     def __init__(self, delay:int=10, attributes:Dict[str, Distribution]=None, meta_data:Dict[str,str] = None, max_history:int=30, endpoint_id:int=1, device_reading_queue=None):
-        self.device_id = next(self.gen_id())
-        self.delay=delay
-        self.meta_data = meta_data
-        self.attributes = attributes
-        self.endpoint_id = endpoint_id
+        self.device_id:int = next(self.gen_id())
+        self.delay:int=delay
+        self.meta_data:Dict[str,str] = meta_data
+        self.attributes:Dict[str:str] = attributes
+        self.endpoint_id:int = endpoint_id
         self.logger = self.create_logger()
-        self.running = False
+        self.running:bool = False
+        self.error_state_cycles_till_normal:int = 0
+        self.error_state:bool = False
 
         self.task = None
         self.device_reading_queue=device_reading_queue
@@ -67,7 +69,13 @@ class Device():
         while self.running==True:
             for attribute_name, generator in self.attributes.items():
                 time_stamp = calendar.timegm(datetime.now().timetuple())
-                value = {'device_id':self.device_id, 'attribute':attribute_name, 'time':datetime.now(), "unixtime":time_stamp, 'value':round(generator.generate_value()[0],2), "endpoint_id":self.endpoint_id}
+                self.reduce_error_state()
+                if self.error_state==True:
+                    sensor_reading = self.generate_ge_99_pc_value()[0]
+                else:
+                    sensor_reading = generator.generate_value()[0]
+                value = {'device_id':self.device_id, 'attribute':attribute_name, 'time':datetime.now(), "unixtime":time_stamp, 
+                         'value':round(sensor_reading,2), "endpoint_id":self.endpoint_id, 'error_state':self.error_state}
                 self.attributes_history[attribute_name].append(value)
                 if self.device_reading_queue!=None:
                     self.device_reading_queue.put(value)
@@ -89,5 +97,11 @@ class Device():
         return NotImplementedError
 
     def add_metadata(self, name:str, value):
-        return NotImplementedError   
+        return NotImplementedError
+
+    def reduce_error_state(self):
+        self.error_state_cycles_till_normal = self.error_state_cycles_till_normal - 1
+        if self.error_state_cycles_till_normal==0:
+            self.error_state=False
+        
 
