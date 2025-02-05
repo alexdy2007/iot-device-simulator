@@ -1,5 +1,5 @@
-from device_simulator.device import Device
-from device_simulator.distributions import BetaDist, NormalDist
+from backend.device_simulator.device import Device
+from backend.device_simulator.distributions import BetaDist, NormalDist
 
 attributes = {
     "Voltage":NormalDist(10,1),
@@ -13,7 +13,6 @@ meta_data = {
 def test_device_creation():
 
     device = Device(attributes=attributes, meta_data=meta_data)
-    
     assert isinstance(device.attributes, dict)
     assert isinstance(device.meta_data, dict)
     assert isinstance(device.device_id, int)

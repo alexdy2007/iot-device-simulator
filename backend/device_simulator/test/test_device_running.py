@@ -1,6 +1,6 @@
-from device_simulator.device import Device
-from device_simulator.distributions import BetaDist, NormalDist
-from device_simulator.device_runner import DeviceRunner
+from backend.device_simulator.device import Device
+from backend.device_simulator.distributions import BetaDist, NormalDist
+from backend.device_simulator.device_runner import DeviceRunner
 from time import sleep
 from datetime import datetime
 
@@ -16,15 +16,10 @@ meta_data = {
 def test_device_running_7_seconds():
    
     device_1 = Device(delay=1, attributes=attributes, meta_data=meta_data)
-
     device_to_run = [device_1]
-
     dr = DeviceRunner(device_to_run)
-    
-  
     dr.start_all_devices()
     sleep(7)
-
     results = dr.get_last_n_readings_from_device(device_1.device_id, 3)
     dr.stop_runner()
 
@@ -35,12 +30,9 @@ def test_3_devices_running_7_seconds():
     device_1 = Device(delay=1, attributes=attributes, meta_data=meta_data)
     device_2 = Device(delay=3, attributes=attributes, meta_data=meta_data)
     device_3 = Device(delay=10, attributes=attributes, meta_data=meta_data)
-
     device_to_run = [device_1, device_2, device_3]
-
     dr = DeviceRunner(device_to_run)
     
-  
     dr.start_all_devices()
     sleep(8)
 

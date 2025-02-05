@@ -1,4 +1,4 @@
-from device_simulator.distributions import NormalDist, BetaDist
+from backend.device_simulator.distributions import NormalDist, BetaDist
 
 def test_normal():
     dist = NormalDist(10,1)

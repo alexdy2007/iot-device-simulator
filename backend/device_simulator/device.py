@@ -71,7 +71,7 @@ class Device():
                 time_stamp = calendar.timegm(datetime.now().timetuple())
                 self.reduce_error_state()
                 if self.error_state==True:
-                    sensor_reading = self.generate_ge_99_pc_value()[0]
+                    sensor_reading = generator.generate_ge_99_pc_value()[0]
                 else:
                     sensor_reading = generator.generate_value()[0]
                 value = {'device_id':self.device_id, 'attribute':attribute_name, 'time':datetime.now(), "unixtime":time_stamp, 
